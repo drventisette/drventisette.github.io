@@ -1,0 +1,35 @@
+---
+---
+<!-- Html HEAD and opening tags -->
+{% include head.html %}
+
+<div class="row small-collapse site-wrapper">
+  
+  <!-- Layout for smaller screens -->
+  <section class="main show-for-small">
+    <div class="cover-d badge">
+    </div>
+    <div class="text-d small-12 two-thirds-height columns pam">
+      <div class="small-offset-3 small-9 columns">
+      {{ content }}
+      </div>
+    </div>
+    <div class="media-d small-12 third-height columns">
+    </div>
+  </section>
+  
+  <!-- Layout for smaller screens -->
+  <section class="main show-for-medium-up">
+    <div class="cover-d small-6 full-height columns">
+    </div>
+    <div class="text-d small-6 two-thirds-height columns pal">
+      {{ content }}
+    </div>
+    <div class="media-d small-6 third-height columns">
+    </div>
+  </section>
+  
+</div>
+
+<!-- scripts and closing tags -->
+{% include foot.html %}
