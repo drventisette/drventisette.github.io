@@ -6,83 +6,13 @@
 <div class="off-canvas-wrap" data-offcanvas>
   <div class="inner-wrap">
     
-    <header>
-      <div class="small-12 columns">
-        <section class="right">
-            <ul class="inline-list mam">
-            <li>
-                <a class="right-off-canvas-toggle" href="#">
-                  <i class="fa fa-bars fa-lg">
-                </i>
-              </a>
-            </li>
-            </ul>
-        </section>
-      </div>
-    </header>
+    <!-- side Menu -->
+    {% include sandwich.html %}
     
-    <aside class="right-off-canvas-menu">
-      <ul class="off-canvas-list">
-        <li><a href="left_item_1">Left item 1</a></li>
-        <li><a href="left_item_2">Left item 2</a></li>
-        <li><a href="left_item_3">Left item 3</a></li>
-      </ul>
-    </aside>
+    <!-- page content -->
+    {{ content }}
     
-    <!-- Layout for smaller screens -->
-    <div class="row small-collapse site-wrapper hide-for-medium-up">  
-      <section class="main">
-        <div ng-init="large = false" ng-class="{'large': large}" class="media-d badge primary">
-          <img src="http://lorempixel.com/600/1000"  ng-click="large=true"/>
-          <a class="exit-media" ng-click="large=false">
-            <i class="fa fa-close fa-lg"></i>
-          </a>
-        </div>
-        <div class="text-d small-12 two-thirds-height columns pan">
-          <div class="text-content small-offset-3 small-9 columns pam pbn">
-          {{ content }}
-          </div>
-          <div class="text-nav small-9 small-offset-3 pas">
-            <a class="button secondary pam">
-              <i class="fa fa-arrow-left"></i>
-            </a>
-            <a class="button secondary pam">
-              <i class="fa fa-arrow-right"></i>
-            </a>
-          </div>
-        </div>
-        <div class="cover-d small-12 third-height columns">
-        </div>
-      </section>
-    </div>
-    
-    <!-- Layout for larger screens -->
-    <div class="row small-collapse site-wrapper show-for-medium-up">
-      <section class="main">
-        <div class="media-d small-5 full-height columns pan man">
-          <img src="http://lorempixel.com/600/600" />
-        </div>
-        <div class="text-d small-7 two-thirds-height columns pan">
-          <div class="text-content small-12 columns pal pbn">
-          {{ content }}
-          </div>
-          <div class="text-nav small-12 columns pas">
-            <a class="button secondary pam">
-              <i class="fa fa-arrow-left"></i>
-            </a>
-            <a class="button secondary pam">
-              <i class="fa fa-arrow-right"></i>
-            </a>
-          </div>
-        </div>
-        <div class="cover-d small-7 third-height columns">
-        </div>
-      </section>
-    </div>
   </div>
 </div>
-
-
-
 <!-- scripts and closing tags -->
 {% include foot.html %}

@@ -78,109 +78,100 @@ body,
 }
 
 .off-canvas-wrap .inner-wrap .site-wrapper .main {
-  .full-height {
-    height: 100%;
-  }
-  .half-height {
-    height: 50%;
-  }
-  .three-quarters-height {
-    height: 75%;
-  }
-  .quarter-height {
-    height: 25%;
+
+  .media-d {
+      @media #{$small-up} {
+        height: 67%;
+      }
+      @media #{$medium-up} {
+        height: 100%;
+      }
+      img {
+        height: 100%;
+        width: 100%;
+        margin: auto;
+        border-radius: inherit;
+        object-fit: cover;
+        object-position: center center;
+      }
   }
 
-  .two-thirds-height {
-    height: 67%;
-  }
-  
-  .third-height {
-    height: 33%;
-  }
-}
-
-.media-d {
-  img {
-    height: 100%;
-    width: 100%;
-    margin: auto;
-    border-radius: inherit;
-    object-fit: cover;
-    object-position: center center;
-  }
-}
-
-.media-d.badge {
-  position: absolute;
-  margin-top: 4vw;
-  margin-left: 3vw;
-  border-radius: 50%;
-  width: 20vw;
-  height: 20vw;
-  z-index: 100;
-  .exit-media {
-    visibility: hidden;
-  }
-  img {
-    width: inherit;
-    height: inherit;
-    object-fit: cover;
-  }
-}
-
-.media-d.badge.large {
-  margin-top: 0;
-  margin-left: 0;
-  border-radius: 0 !important;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(255,255,255,.85);
-  .exit-media {
-    visibility: visible;
+  .media-d .badge {
     position: absolute;
-    top: 0.4em;
-    right: 1em;
-    font-size: 2em;
-  }
-  img {
-    object-fit: contain;
-    border-radius: inherit;
-  }
-}
-
-.text-d {
-  .text-content {
-    height: 100%;
-    border-left: 3px solid #444;
-    overflow-y: scroll; 
-    background-color: ivory;
-  }
-  .text-nav {
-    position:absolute;
-    bottom: 0;
-    height: auto;
-    border-left: 3px solid #444;
-    background-color: transparent;
-    z-index: 1;
-    a {
-      position: relative;
-      top: 77px;
-      left: -55px;
-      vertical-align: middle;
-      line-height: 100%;
-      background-color: #333;
-      color: white;
+    margin-top: 4vw;
+    margin-left: 3vw;
+    border-radius: 50%;
+    width: 20vw;
+    height: 20vw;
+    z-index: 100;
+    .exit-media {
+      visibility: hidden;
+    }
+    img {
+      height: 100%;
+      width: 100%;
+      margin: auto;
+      border-radius: inherit;
+      object-fit: cover;
+      object-position: center center;
     }
   }
-}
-.cover-d {
-  background-image: url("http://lorempixel.com/600/40");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center center;
-  border-top: 3px solid #444;
-  @media #{$medium-up} {
-    border-left: 3px solid #444;
+
+  .media-d .badge.large {
+    margin-top: 0;
+    margin-left: 0;
+    border-radius: 0 !important;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255,255,255,.85);
+    .exit-media {
+      visibility: visible;
+      position: absolute;
+      top: 0.4em;
+      right: 1em;
+      font-size: 2em;
+    }
+    img {
+      object-fit: contain;
+      border-radius: inherit;
+    }
+  }
+
+  .text-d {  
+    height: 67%;
+    .text-content {
+      height: 100%;
+      border-left: 3px solid #444;
+      overflow-y: scroll; 
+      background-color: ivory;
+    }
+    .text-nav {
+      position:absolute;
+      bottom: 0;
+      height: auto;
+      border-left: 3px solid #444;
+      background-color: transparent;
+      z-index: 1;
+      a {
+        position: relative;
+        top: 77px;
+        left: -55px;
+        vertical-align: middle;
+        line-height: 100%;
+        background-color: #333;
+        color: white;
+      }
+    }
+  }
+  .cover-d {
+    height: 33%;
+    background-image: url("http://lorempixel.com/600/40");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    border-top: 3px solid #444;
+    @media #{$medium-up} {
+      border-left: 3px solid #444;
+    }
   }
 }

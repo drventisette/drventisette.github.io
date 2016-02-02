@@ -1,65 +1,17 @@
 ---
-layout: ventisette
+layout: mtc
 title: Welcome!
 description: This is my site. Welcome.
 keywords: github pages, Jekyll, foundation 5
 ---
-<div ng-controller="MainCtrl as main">
-  <div>
-    <span ng-bind="main.items.length"></span> items in stock.
-  </div>
-  <div>
-    <input type="text" ng-model="main.text" />
-    <a href="" ng-click="main.showMessage(main.text);">
-      Show
-    </a>
-    <p>
-      <small ng-bind="main.message"></small>
-    </p>
-  </div>
-  <ul>
-    <li ng-repeat="item in main.items" ng-click="main.removeFromStock(item, $index)"ng-bind="item.name">
-    </li>
-  </ul>
-  <p>Today's date: <span ng-bind="main.timeNow | date:'dd MM yyyy' "></span></p>
-  <pre ng-bind="main.items | json ">
-  </pre>
-</div>
-<compose-email>
-</compose-email>
-
-<a href="/#/inbox">Show your emails</a>
-<br />
 
 <div ng-view>
 </div>
 
-<script type="text/ng-template" id="views/inbox.html">
-  <ol>
-    <li ng-repeat="email in inbox.emails">
-      <a href="/#/inbox/email/[[email.id]]">
-        <strong>[[email.object]]</strong>
-        from [[email.sender]]
-      </a>
-    </li>
-  </ol>
-</script>
-
-<script type="text/ng-template" id="views/email.html">
-  <div ng-if="email.email">
-    <h2>[[email.email.object]]
-      <small>from [[email.email.sender]]</small></h2>
-    <p>[[email.email.message]]</p>
-  </div>
-  <div ng-if="email.error">
-    [[email.error]]
-  </div>
-</script>
-
 <script type="text/ng-template" id="views/posts.html">
   <ol>
     <li ng-repeat="post in posts.posts">
-      <a href="[[ post.url ]]">
+      <a href="/#/posts[[ post.id ]]">
         <strong>[[post.title]]</strong>
         <small>[[ post.date ]]</small>
         <br />
@@ -67,4 +19,12 @@ keywords: github pages, Jekyll, foundation 5
       </a>
     </li>
   </ol>
+</script>
+
+<script type="text/ng-template" id="views/post.html">
+      <h1>[[ post.post.title]]
+        <small>[[ post.post.date ]]</small>
+        <br/>
+      </h1>
+      <div ng-bind-html="post.post.content | sanitize"></div>
 </script>

@@ -1,79 +1,43 @@
 ---
 ---
-
+// Helper functions
+function DecodeHtml(str) {
+  return $('<div/>').html(str).text();
+}
+  
 // Controllers
-
-function MainCtrl(UserService){
-  
-  var vm = this;
-  
-  vm.removeFromStock = function (item, index) {
-    vm.items.splice(index, 1);
-  };
-  
-  vm.items = [{
-    name: 'Scuba Diving Kit',
-    id: 7297510
-  },{
-    name: 'Snorkel',
-    id: 0278916
-  },{
-    name: 'Wet Suit',
-    id: 2389017
-  },{
-    name: 'Beach Towel',
-    id: 1000983
-  }];
-  
-  vm.sayHello = function (name) {
-    UserService.sayHello(name);
-  };
-  
-  vm.showMessage = function(message) {
-    vm.message = "Your message is: " + message;
-  };
-  
-  vm.timeNow = Date.now();
-}
-
-function EmailCtrl ($routeParams, EmailService) {
-  var vm = this;
-  EmailService
-    .get($routeParams.id)
-    .then(function(response){
-      vm.email = response;
-  }, function(error){
-      vm.error = error;
-  });
-}
-
-function InboxCtrl(EmailService){
-  this.emails = EmailService.emails;
-}
 
 function PostsCtrl(BlogService){
   this.posts = BlogService.posts;
 }
 
-// Services
-
-function UserService(){
-  this.sayHello = function (name) {
-    return 'Hello there ' + name;
-  };
+function PostCtrl(BlogService, $routeParams, $location){
+  var id = '/' + $routeParams.y + '/' + $routeParams.m + '/' + $routeParams.d + '/' + $routeParams.title;
+  this.post = BlogService.get(id);
+  if(this.post === undefined){
+    $location.path('/');
+  }else{
+    var encodedStr = this.post.content;
+    this.post.content = DecodeHtml(encodedStr);
+  }
 }
+
+// Services
 
 function BlogService(){
   
   {% capture posts %}
   [
-    {% for post in site.posts %}
+    {% for post in site.posts reversed %}
     {
+      "id": '{{ post.id }}',
       "title": '{{ post.title }}',
       "url": '{{ site.baseurl }}{{ post.url }}',
       "date": '{{ post.date | date: "%d %B %Y" }}',
       "excerpt": '{{ post.excerpt | remove: "<p>" | remove : "</p>" | escape }}',
-      "content": '{{ post.content | escape }}'
+      "content": '{{ post.content | escape }}',
+      "previous": '{{ post.previous }}',
+      "next": '{{ post.next }}'
     }
     {% if forloop.last %}{% else %},{% endif %}
     {% endfor %}
@@ -81,59 +45,15 @@ function BlogService(){
   {% endcapture %}
   
   this.posts = {{ posts | strip_newlines }};
-  
-}
-
-function EmailService($q){
-  
-  this.emails = [
-    {
-      id: "0",
-      sender: "Jane",
-      object: "Greeting",
-      message: "Hello, my friend!"
-    },
-    {
-      id: "1",
-      sender: "John",
-      object: "Goodbye",
-      message: "Farewell, my friend!"
-    },
-    {
-      id: "2",
-      sender: "Barbara",
-      object: "Question",
-      message: "What?"
-    },
-    {
-      id: "3",
-      sender: "Admin",
-      object: "This Website",
-      message: "{{ site.url }}"
-    }
-  ];
-  
   this.get = function(id){
-    
-    var deferred = $q.defer(),
-        emails = this.emails,
-        r = undefined,
-        i=0;
-    
-    for(var i; i < emails.length; i++){
-      var email = emails[i];
-      if(email.id === id){
-        r = email;
+    var result = undefined;
+    for(var i=0; i<this.posts.length; i++){
+      var test = this.posts[i];      
+      if(test.id === id){
+        result = test;
       }
     }
-    
-    if(email !== undefined){
-      deferred.resolve(r);
-    }
-    else {
-      deferred.reject("No email found");
-    }
-    return deferred.promise;
+    return result;
   }
 }
 
@@ -165,23 +85,18 @@ function composeEmail () {
 
 function router ($routeProvider) {
   $routeProvider
-  .when('/inbox', {
-    templateUrl: 'views/inbox.html',
-    controller: 'InboxCtrl',
-    controllerAs: 'inbox'
-  })
-  .when('/inbox/email/:id', {
-    templateUrl: 'views/email.html',
-    controller: 'EmailCtrl',
-    controllerAs: 'email'
-  })
   .when('/posts', {
     templateUrl: 'views/posts.html',
     controller: 'PostsCtrl',
     controllerAs: 'posts'
   })
+  .when('/posts/:y/:m/:d/:title', {
+    templateUrl: 'views/post.html',
+    controller: 'PostCtrl',
+    controllerAs: 'post'
+  })
   .otherwise({
-    redirectTo: '/inbox'
+    redirectTo: '/posts'
   });
 }
 
@@ -189,18 +104,19 @@ function router ($routeProvider) {
 
 var app = angular
 
-.module('myApp', ['ngRoute'], function($interpolateProvider) {
+.module('myApp', ['ngRoute', 'ngResource'], function($interpolateProvider) {
   $interpolateProvider.startSymbol('[[');
   $interpolateProvider.endSymbol(']]');
 })
 
-.controller('MainCtrl', MainCtrl)
-.controller('InboxCtrl', InboxCtrl)
-.controller('EmailCtrl', EmailCtrl)
+.filter("sanitize", ['$sce', function($sce) {
+  return function(htmlCode) {
+    return $sce.trustAsHtml(htmlCode);
+  };
+}])
+
 .controller('PostsCtrl', PostsCtrl)
 
-.service('UserService', UserService)
-.service('EmailService', EmailService)
 .service('BlogService', BlogService)
 
 .directive('composeEmail', composeEmail)
