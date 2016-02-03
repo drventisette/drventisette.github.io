@@ -8,23 +8,3 @@ keywords: github pages, Jekyll, foundation 5
 <div ng-view>
 </div>
 
-<script type="text/ng-template" id="views/posts.html">
-  <ol>
-    <li ng-repeat="post in posts.posts">
-      <a href="/#/posts[[ post.id ]]">
-        <strong>[[post.title]]</strong>
-        <small>[[ post.date ]]</small>
-        <br />
-        [[ post.excerpt ]]
-      </a>
-    </li>
-  </ol>
-</script>
-
-<script type="text/ng-template" id="views/post.html">
-      <h1>[[ post.post.title]]
-        <small>[[ post.post.date ]]</small>
-        <br/>
-      </h1>
-      <div ng-bind-html="post.post.content | sanitize"></div>
-</script>

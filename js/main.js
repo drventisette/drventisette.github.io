@@ -6,19 +6,27 @@ function DecodeHtml(str) {
 }
   
 // Controllers
+function MtcCtrl(){}
 
-function PostsCtrl(BlogService){
+function PostsCtrl(BlogService, $rootScope){
   this.posts = BlogService.posts;
+  $rootScope.post = {};
+  $rootScope.post.previous = this.posts[this.posts.length-1].id;
+  $rootScope.post.next = this.posts[0].id;
 }
 
-function PostCtrl(BlogService, $routeParams, $location){
+function PostCtrl(BlogService, $routeParams, $location, $rootScope){
   var id = '/' + $routeParams.y + '/' + $routeParams.m + '/' + $routeParams.d + '/' + $routeParams.title;
+  $rootScope.post = undefined;
   this.post = BlogService.get(id);
   if(this.post === undefined){
     $location.path('/');
   }else{
     var encodedStr = this.post.content;
     this.post.content = DecodeHtml(encodedStr);
+    this.post.hasPrevious = this.post.previous !== '';
+    this.post.hasNext = this.post.next !== '';
+    $rootScope.post = this.post;
   }
 }
 
@@ -35,9 +43,10 @@ function BlogService(){
       "url": '{{ site.baseurl }}{{ post.url }}',
       "date": '{{ post.date | date: "%d %B %Y" }}',
       "excerpt": '{{ post.excerpt | remove: "<p>" | remove : "</p>" | escape }}',
+      "media": '{{ post.media }}',
       "content": '{{ post.content | escape }}',
-      "previous": '{{ post.previous }}',
-      "next": '{{ post.next }}'
+      "previous": '{{ post.previous.id }}',
+      "next": '{{ post.next.id }}'
     }
     {% if forloop.last %}{% else %},{% endif %}
     {% endfor %}
@@ -116,6 +125,7 @@ var app = angular
 }])
 
 .controller('PostsCtrl', PostsCtrl)
+.controller('MtcCtrl', MtcCtrl)
 
 .service('BlogService', BlogService)
 
