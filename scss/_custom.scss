@@ -145,22 +145,16 @@ body,
       overflow-y: scroll; 
       background-color: ivory;
     }
-    .text-nav {
-      position:absolute;
-      bottom: 0;
-      height: auto;
-      border-left: 3px solid #444;
-      background-color: transparent;
-      z-index: 1;
-      a {
-        position: relative;
-        top: 77px;
-        left: -55px;
-        vertical-align: middle;
-        line-height: 100%;
-        background-color: #333;
-        color: white;
-      }
+  }
+  .nav-d {
+    position: fixed;
+    top: 67%;
+    height: auto;
+    background-color: transparent;
+    z-index: 1;
+    a {
+      vertical-align: middle;
+      line-height: 100%;
     }
   }
   .cover-d {

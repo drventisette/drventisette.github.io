@@ -10,9 +10,7 @@ function MtcCtrl(){}
 
 function PostsCtrl(BlogService, $rootScope){
   this.posts = BlogService.posts;
-  $rootScope.post = {};
-  $rootScope.post.previous = this.posts[this.posts.length-1].id;
-  $rootScope.post.next = this.posts[0].id;
+  $rootScope.post = undefined;
 }
 
 function PostCtrl(BlogService, $routeParams, $location, $rootScope){
@@ -24,8 +22,8 @@ function PostCtrl(BlogService, $routeParams, $location, $rootScope){
   }else{
     var encodedStr = this.post.content;
     this.post.content = DecodeHtml(encodedStr);
-    this.post.hasPrevious = this.post.previous !== '';
-    this.post.hasNext = this.post.next !== '';
+    this.post.isFirst = this.post.previous === '';
+    this.post.isLast = this.post.next === '';
     $rootScope.post = this.post;
   }
 }
@@ -36,7 +34,7 @@ function BlogService(){
   
   {% capture posts %}
   [
-    {% for post in site.posts reversed %}
+    {% for post in site.posts %}
     {
       "id": '{{ post.id }}',
       "title": '{{ post.title }}',

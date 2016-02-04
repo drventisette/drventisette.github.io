@@ -22,15 +22,19 @@ layout: layout
       <div class="text-content small-12 columns pam">
       {{ content }}
       </div>
-      <div class="text-nav small-12 pas">
-        <a ng-href="/#/posts[[post.previous]]" class="button secondary pam">
-          <i ng-if="post.previous !== ''" class="fa fa-arrow-left" title="Previous Post"></i>
-          <i ng-if="post.previous === ''" class="fa fa-bars" title="Post Index"></i>
-        </a>
-        <a ng-href="/#/posts[[post.next]]" class="button secondary pam">
-          <i class="fa" ng-class="{'fa-arrow-right' : post.hasNext, 'fa-bars': !post.hasNext }"></i>
-        </a>
-      </div>
+    </div>
+    
+    <!-- Navigation -->
+    <div class="nav-d small-9 small-offset-3 medium-7 medium-offset-5 pas" ng-hide="!post">
+      <a ng-href="[['/#/posts'+post.previous]]" ng-hide="post.isFirst" class="button secondary pam">
+        <i class="fa fa-arrow-left"></i>
+      </a>
+      <a href="/#/posts" class="button secondary pam">
+        <i class="fa fa-bars"></i>
+      </a>
+      <a ng-href="[['/#/posts'+post.next]]" ng-hide="post.isLast" class="button secondary pam">
+        <i class="fa fa-arrow-right"></i>
+      </a>
     </div>
     
     <!-- Cover-d section -->
