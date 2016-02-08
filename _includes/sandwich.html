@@ -3,7 +3,7 @@
     <section class="right">
         <ul class="inline-list mam">
         <li>
-            <a class="right-off-canvas-toggle" href="#">
+            <a class="right-off-canvas-toggle">
               <i class="fa fa-bars fa-lg">
             </i>
           </a>
@@ -13,10 +13,10 @@
   </div>
 </header>
 
-<aside class="right-off-canvas-menu">
+<aside class="right-off-canvas-menu" ng-controller="SandwichCtrl as sandwich">
   <ul class="off-canvas-list">
-    <li><a href="left_item_1">Left item 1</a></li>
-    <li><a href="left_item_2">Left item 2</a></li>
-    <li><a href="left_item_3">Left item 3</a></li>
+    <li ng-repeat="page in sandwich.pages" ng-class="sandwich.isActive(page);">
+      <a ng-href="/#[[ page.url ]]" ng-bind="page.title"></a>
+    </li>
   </ul>
 </aside>

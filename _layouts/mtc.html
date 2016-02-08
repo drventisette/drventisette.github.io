@@ -1,45 +1,17 @@
 ---
 layout: layout
 ---
-
 <div class="row small-collapse site-wrapper">  
   
-  <section class="main">
+  <section class="main" ng-cloak>
     
-    <!-- Media-d section -->
-    <div class="media-d small-3 medium-5 columns pan man">
-      <div ng-init="large = false" ng-class="{'large': large}" class="badge primary hide-for-medium-up">
-        <img ng-src="[[ post.media ]]"  ng-click="large=true"/>
-        <a class="exit-media" ng-click="large=false">
-          <i class="fa fa-close fa-lg"></i>
-        </a>
-      </div>
-      <img src="http://lorempixel.com/600/1000" class="hide-for-small"/>
-    </div>
+    {% include media-d.html %}
     
-    <!-- Text-d section -->
-    <div class="text-d small-9 medium-7 columns pan">
-      <div class="text-content small-12 columns pam">
-      {{ content }}
-      </div>
-    </div>
+    {% include text-d.html %}
     
-    <!-- Navigation -->
-    <div class="nav-d small-9 small-offset-3 medium-7 medium-offset-5 pas" ng-hide="!post">
-      <a ng-href="[['/#/posts'+post.previous]]" ng-hide="post.isFirst" class="button secondary pam">
-        <i class="fa fa-arrow-left"></i>
-      </a>
-      <a href="/#/posts" class="button secondary pam">
-        <i class="fa fa-bars"></i>
-      </a>
-      <a ng-href="[['/#/posts'+post.next]]" ng-hide="post.isLast" class="button secondary pam">
-        <i class="fa fa-arrow-right"></i>
-      </a>
-    </div>
+    {% include navigation.html %}
     
-    <!-- Cover-d section -->
-    <div class="cover-d small-12 medium-7 third-height columns">
-    </div>
+    {% include cover-d.html %}
   
   </section>
 </div>

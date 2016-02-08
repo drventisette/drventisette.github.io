@@ -1,9 +1,9 @@
 <!doctype html>
-<html ng-app="myApp" class="no-js">
+<html ng-app="myApp" ng-controller="MtcCtrl as mtc" class="no-js">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{ page.title }} - {{ site.name }}</title>
+    <title ng-bind="mtc.page.title"></title>
     <meta name="description" content="{{ page.title }} - {{ site.name }}" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="keywords" content="{{ page.keywords }}, {{ site.keywords }}" />

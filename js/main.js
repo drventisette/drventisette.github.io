@@ -1,48 +1,107 @@
 ---
+title: main.js
 ---
+  
 // Helper functions
 function DecodeHtml(str) {
   return $('<div/>').html(str).text();
 }
   
 // Controllers
-function MtcCtrl(){}
-
-function PostsCtrl(BlogService, $rootScope){
-  this.posts = BlogService.posts;
-  $rootScope.post = undefined;
+function MtcCtrl($scope){
+  ctrl = this;
+  $scope.$watchCollection('mtc.page', function(oldV, newV){
+    ctrl.page = newV;
+  });
 }
 
-function PostCtrl(BlogService, $routeParams, $location, $rootScope){
-  var id = '/' + $routeParams.y + '/' + $routeParams.m + '/' + $routeParams.d + '/' + $routeParams.title;
-  $rootScope.post = undefined;
-  this.post = BlogService.get(id);
+function SandwichCtrl(SiteService, $location){
+  this.pages = SiteService.pages;
+  this.isActive = function(p){
+    var r,
+        url = $location.url();
+    url.indexOf(p.url) > -1 ? r = 'active' : r = '';
+    return r;
+  }
+}
+
+function PostsCtrl(SiteService, $scope){
+  this.posts = SiteService.posts;
+  $scope.mtc.post = undefined;
+  $scope.mtc.page = {
+    title: 'Post Index'
+  };
+}
+
+function PostCtrl(SiteService, $routeParams, $location, $scope){
+  var url = '/posts/' + $routeParams.y + '/' + $routeParams.m + '/' + $routeParams.d + '/' + $routeParams.title + '/';
+  $scope.mtc.post = undefined;
+  this.post = SiteService.getPost(url);
   if(this.post === undefined){
     $location.path('/');
   }else{
-    var encodedStr = this.post.content;
-    this.post.content = DecodeHtml(encodedStr);
     this.post.isFirst = this.post.previous === '';
     this.post.isLast = this.post.next === '';
-    $rootScope.post = this.post;
+    $scope.mtc.page = this.post;
+    $scope.mtc.post = true;
+  }
+}
+
+function PageCtrl(SiteService, $routeParams, $location, $scope){
+  var url = $location.url();
+  $scope.mtc.page = undefined;
+  this.page = SiteService.getPage(url);
+  if(this.page === undefined){
+    $location.path('/');
+  }else{
+    $scope.mtc.page = this.page;
   }
 }
 
 // Services
+function SiteService(){
 
-function BlogService(){
+  this.time = '{{ site.time }}';
   
+  // Site's pages
+  
+  {% capture pages %}
+  {% assign site-pages = (site.pages | where: "layout", "mtc") %}
+  [
+    {% for page in site-pages %}
+    {
+      "id": '{{ page.id }}',
+      "url": '{{ site.baseurl }}{{ page.url }}',
+      "path": '{{ page.path }}',
+      "title": '{{ page.title }}',
+      "date": '{{ page.date | date: "%d %B %Y" }}',
+      "categories": ('{{ page.categories }}').split(','),
+      "tags": '{{ page.tags }}',
+      "excerpt": DecodeHtml('{{ page.excerpt | remove: "<p>" | remove : "</p>" | escape }}'),
+      "media": '{{ page.media }}',
+      "content": DecodeHtml('{{ page.content | escape }}'),
+      "cover": '{{ page.cover }}'
+    }
+    {% if forloop.last %}{% else %},{% endif %}
+    {% endfor %}
+  ];
+  {% endcapture %}
+  
+  this.pages = {{ pages | strip_newlines }};
+  
+  // Site's posts
   {% capture posts %}
   [
-    {% for post in site.posts %}
+    {% for post in site.categories.posts %}
     {
       "id": '{{ post.id }}',
       "title": '{{ post.title }}',
       "url": '{{ site.baseurl }}{{ post.url }}',
       "date": '{{ post.date | date: "%d %B %Y" }}',
-      "excerpt": '{{ post.excerpt | remove: "<p>" | remove : "</p>" | escape }}',
+      "excerpt": DecodeHtml('{{ post.excerpt | remove: "<p>" | remove : "</p>" | escape }}'),
       "media": '{{ post.media }}',
-      "content": '{{ post.content | escape }}',
+      "content": DecodeHtml('{{ post.content | escape }}'),
+      "cover": '{{ post.cover }}',
       "previous": '{{ post.previous.id }}',
       "next": '{{ post.next.id }}'
     }
@@ -52,59 +111,58 @@ function BlogService(){
   {% endcapture %}
   
   this.posts = {{ posts | strip_newlines }};
-  this.get = function(id){
+  
+  var get = function(url, p){
     var result = undefined;
-    for(var i=0; i<this.posts.length; i++){
-      var test = this.posts[i];      
-      if(test.id === id){
+    for(var i=0; i<p.length; i++){
+      var test = p[i];      
+      if(test.url === url){
         result = test;
       }
     }
     return result;
-  }
+  };
+  
+  this.getPost = function(url){
+    return get(url, this.posts);
+  };
+  
+  this.getPage = function(url){
+    return get(url, this.pages);
+  };
+   
 }
 
 // Directives
-
-function composeEmail () {
-  return {
-    restrict: 'EA',
-    replace: true,
-    scope: true,
-    controllerAs: 'compose',
-    controller: function () {
-
-    },
-    link: function ($scope, $element, $attrs) {
-
-    },
-    template: [
-      '<div class="compose-email">',
-        '<input type="text" placeholder="To..." ng-model="compose.to">',
-        '<input type="text" placeholder="Subject..." ng-model="compose.subject">',
-        '<textarea placeholder="Message..." ng-model="compose.message"></textarea>',
-      '</div>'
-    ].join('')
-  };
-}
 
 // Configuration
 
 function router ($routeProvider) {
   $routeProvider
-  .when('/posts', {
-    templateUrl: 'views/posts.html',
-    controller: 'PostsCtrl',
-    controllerAs: 'posts'
-  })
   .when('/posts/:y/:m/:d/:title', {
     templateUrl: 'views/post.html',
     controller: 'PostCtrl',
     controllerAs: 'post'
   })
+  
+  {% for page in site.pages %}
+  .when('{{ page.url }}', {
+    templateUrl: 'views/page.html',
+    controller: 'PageCtrl',
+    controllerAs: 'page'
+  })
+  {% endfor %}
+  
+  .when('/posts/', {
+    templateUrl: 'views/posts.html',
+    controller: 'PostsCtrl',
+    controllerAs: 'posts'
+  })
+  
   .otherwise({
-    redirectTo: '/posts'
+    redirectTo: '/404/'
   });
+
 }
 
 // App definition
@@ -123,11 +181,14 @@ var app = angular
 }])
 
 .controller('PostsCtrl', PostsCtrl)
+.controller('PostCtrl', PostCtrl)
+.controller('PageCtrl', PageCtrl)
 .controller('MtcCtrl', MtcCtrl)
+.controller('SandwichCtrl', SandwichCtrl)
 
-.service('BlogService', BlogService)
+.service('SiteService', SiteService)
 
-.directive('composeEmail', composeEmail)
+// .directive('directive', directive)
 
 .config(router);
 

@@ -1,9 +1,9 @@
 <script type="text/ng-template" id="views/posts.html">
-  <h2>Post Index</h2>
+  <h2>Posts</h2>
   <ol>
     <li ng-repeat="post in posts.posts">
-      <a href="/#/posts[[ post.id ]]">
-        <strong>[[post.title]]</strong>
+      <a href="/#[[ post.url ]]">
+        <strong>[[ post.title]]</strong>
         <small>[[ post.date ]]</small>
         <br />
         [[ post.excerpt ]]
@@ -18,4 +18,12 @@
         <br/>
       </h1>
       <div ng-bind-html="post.post.content | sanitize"></div>
+</script>
+
+<script type="text/ng-template" id="views/page.html">
+      <h1>[[ page.page.title]]
+        <small>[[ page.page.date ]]</small>
+        <br/>
+      </h1>
+      <div ng-bind-html="page.page.content | sanitize"></div>
 </script>
