@@ -1,12 +1,26 @@
 ---
 title: main.js
 ---
-  
 // Helper functions
-function DecodeHtml(str) {
-  return $('<div/>').html(str).text();
-}
-  
+var Dr27 = Dr27 || {};
+
+Dr27.helpers = {
+  DecodeHtml: function(str) {
+    return $('<div/>').html(str).text();
+  },
+  get: function(what, where, proof){
+    var result = undefined,
+        i=0;
+    for(var i; i < where.length; i++){
+      var test = where[i];      
+      if(test[proof] === what){
+        result = test;
+      }
+    }
+    return result;
+  }
+};
+
 // Controllers
 function MtcCtrl($scope){
   ctrl = this;
@@ -31,55 +45,79 @@ function PostsCtrl(SiteService, $scope){
   $scope.mtc.page = {
     title: 'Post Index'
   };
+  $(document).foundation('clearing', 'reflow');
 }
 
 function PostCtrl(SiteService, $routeParams, $location, $scope){
-  var url = '/posts/' + $routeParams.y + '/' + $routeParams.m + '/' + $routeParams.d + '/' + $routeParams.title + '/';
+  
+  var ctrl = this,
+      url = '/posts/' + $routeParams.y + '/' + $routeParams.m + '/' + $routeParams.d + '/' + $routeParams.title + '/',
+      promise = SiteService.getPost(url);
+  
   $scope.mtc.post = undefined;
-  this.post = SiteService.getPost(url);
-  if(this.post === undefined){
-    $location.path('/');
-  }else{
-    this.post.isFirst = this.post.previous === '';
-    this.post.isLast = this.post.next === '';
-    $scope.mtc.page = this.post;
-    $scope.mtc.post = true;
-  }
+  
+  promise.then(
+    function(result){
+      ctrl.post = result;
+      ctrl.post.isFirst = ctrl.post.previous === '';
+      ctrl.post.isLast = ctrl.post.next === '';
+      $scope.mtc.page = ctrl.post;
+      $scope.mtc.post = true;
+  },
+    function(reason){
+      console.log(reason);
+      $location.path('/404/');
+  },
+    function(update){
+      console.log(update);
+  });
 }
 
 function PageCtrl(SiteService, $routeParams, $location, $scope){
-  var url = $location.url();
+  var ctrl = this,
+      url = $location.url(),
+      promise = SiteService.getPage(url);
+  
   $scope.mtc.page = undefined;
-  this.page = SiteService.getPage(url);
-  if(this.page === undefined){
-    $location.path('/');
-  }else{
-    $scope.mtc.page = this.page;
-  }
+  
+  promise.then(
+    function(result){
+      ctrl.page = result;
+      $scope.mtc.page = ctrl.page;
+    },
+    function(error){
+      console.log(error);
+      $location.path('/404/');
+    },
+    function(update){
+      console.log('update');
+    });
 }
 
 // Services
-function SiteService(){
-
+function SiteService($q){
+  
+  var helpers = Dr27.helpers;
+  
   this.time = '{{ site.time }}';
   
   // Site's pages
   
   {% capture pages %}
-  {% assign site-pages = (site.pages | where: "layout", "mtc") %}
+  {% assign site-pages = (site.pages | where: "layout", "mtc") | sort: 'index'%}
   [
     {% for page in site-pages %}
     {
-      "id": '{{ page.id }}',
+      "index": '{{ page.index }}',
       "url": '{{ site.baseurl }}{{ page.url }}',
       "path": '{{ page.path }}',
       "title": '{{ page.title }}',
       "date": '{{ page.date | date: "%d %B %Y" }}',
       "categories": ('{{ page.categories }}').split(','),
       "tags": '{{ page.tags }}',
-      "excerpt": DecodeHtml('{{ page.excerpt | remove: "<p>" | remove : "</p>" | escape }}'),
+      "excerpt": helpers.DecodeHtml('{{ page.excerpt | remove: "<p>" | remove : "</p>" | escape }}'),
       "media": '{{ page.media }}',
-      "content": DecodeHtml('{{ page.content | escape }}'),
+      "content": helpers.DecodeHtml('{{ page.content | escape }}'),
       "cover": '{{ page.cover }}'
     }
     {% if forloop.last %}{% else %},{% endif %}
@@ -98,9 +136,9 @@ function SiteService(){
       "title": '{{ post.title }}',
       "url": '{{ site.baseurl }}{{ post.url }}',
       "date": '{{ post.date | date: "%d %B %Y" }}',
-      "excerpt": DecodeHtml('{{ post.excerpt | remove: "<p>" | remove : "</p>" | escape }}'),
+      "excerpt": helpers.DecodeHtml('{{ post.excerpt | remove: "<p>" | remove : "</p>" | escape }}'),
       "media": '{{ post.media }}',
-      "content": DecodeHtml('{{ post.content | escape }}'),
+      "content": helpers.DecodeHtml('{{ post.content | escape }}'),
       "cover": '{{ post.cover }}',
       "previous": '{{ post.previous.id }}',
       "next": '{{ post.next.id }}'
@@ -112,23 +150,42 @@ function SiteService(){
   
   this.posts = {{ posts | strip_newlines }};
   
-  var get = function(url, p){
-    var result = undefined;
-    for(var i=0; i<p.length; i++){
-      var test = p[i];      
-      if(test.url === url){
-        result = test;
-      }
-    }
-    return result;
-  };
-  
   this.getPost = function(url){
-    return get(url, this.posts);
+    var deferred = $q.defer(),
+        result,
+        error;
+    deferred.notify('Looking for ' + url + '...');
+    if(result = helpers.get(url, this.posts, 'url'))
+    {
+      deferred.resolve(result);
+    }
+    else
+    {
+      error = 'Unable to find ' + url + '.';
+      deferred.reject(error);
+    }
+    return deferred.promise;
   };
   
   this.getPage = function(url){
-    return get(url, this.pages);
+    var deferred = $q.defer(),
+        result,
+        error;
+    
+    deferred.notify('Looking for ' + url + '...');
+    
+    if(result = helpers.get(url, this.pages, 'url'))
+    {
+      deferred.resolve(result);
+    }
+    else
+    {
+      error = 'Unable to find ' + url + '.';
+      deferred.reject(error);
+    }
+    return deferred.promise;
+    
+    // return helpers.get(url, this.pages, 'url');
   };
    
 }

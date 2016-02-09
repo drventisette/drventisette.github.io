@@ -35,13 +35,18 @@ h1, h2, h3, h4, h5, h6 {
   padding-top: 100%;
 }
 
-.square > a,
-.square > div{
+.square a {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+}
+
+.square a {
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
 /* VENTISETTE LAYOUT */
@@ -78,7 +83,7 @@ body,
 }
 
 .off-canvas-wrap .inner-wrap .site-wrapper .main {
-
+  
   .media-d {
       @media #{$small-up} {
         height: 67%;

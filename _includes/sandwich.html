@@ -15,7 +15,7 @@
 
 <aside class="right-off-canvas-menu" ng-controller="SandwichCtrl as sandwich">
   <ul class="off-canvas-list">
-    <li ng-repeat="page in sandwich.pages" ng-class="sandwich.isActive(page);">
+    <li ng-repeat="page in sandwich.pages" ng-class="sandwich.isActive(page);" ng-if="page.index > 0">
       <a ng-href="/#[[ page.url ]]" ng-bind="page.title"></a>
     </li>
   </ul>
