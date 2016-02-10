@@ -4,15 +4,15 @@
 {% include head.html %}
 
 <div class="off-canvas-wrap" data-offcanvas>
-  <div class="inner-wrap">
+  <main class="inner-wrap">
     
     <!-- side Menu -->
     {% include sandwich.html %}
     
     <!-- page content -->
     {{ content }}
-    
-  </div>
+  <a class="exit-off-canvas"></a>  
+  </main>
 </div>
 <!-- AngularJs templates -->
 {% include ng-templates.html %}

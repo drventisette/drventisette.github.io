@@ -40,12 +40,18 @@ function SandwichCtrl(SiteService, $location){
 }
 
 function PostsCtrl(SiteService, $scope){
+  this.accordion = {};
   this.posts = SiteService.posts;
   $scope.mtc.post = undefined;
   $scope.mtc.page = {
     title: 'Post Index'
   };
-  $(document).foundation('clearing', 'reflow');
+  
+  this.toggleAccordion = function(id){
+    var section = 'post' + id;
+    this.accordion = {};
+    this.accordion[section] = !this.accordion[section];
+  };
 }
 
 function PostCtrl(SiteService, $routeParams, $location, $scope){
@@ -230,7 +236,15 @@ var app = angular
   $interpolateProvider.startSymbol('[[');
   $interpolateProvider.endSymbol(']]');
 })
-
+.run(function($rootScope){
+   $rootScope.$on('$viewContentLoaded', function () {
+      $(document).foundation({
+        offcanvas : {
+          close_on_click: true
+        }
+      });
+  });
+})
 .filter("sanitize", ['$sce', function($sce) {
   return function(htmlCode) {
     return $sce.trustAsHtml(htmlCode);
