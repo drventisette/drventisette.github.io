@@ -1,10 +1,13 @@
 <!-- Media-d section -->
 <div class="media-d small-3 medium-5 columns pan man">
-  <div ng-if="mtc.page.media" ng-init="large = false" ng-class="{'large': large}" class="badge primary hide-for-medium-up">
-    <img ng-src="[[ mtc.page.media ]]"  ng-click="large=true"/>
-    <a class="exit-media" ng-click="large=false">
-      <i class="fa fa-close fa-lg"></i>
-    </a>
+  <div ng-if="mtc.page.media !== undefined">
+    <div ng-init="media.large = false" ng-class="{'large': media.large}" class="badge primary hide-for-medium-up">
+      <img ng-src="[[mtc.page.media]]"  ng-click="media.large=true" ng-animate-swap="mtc.page.media" class="animated-img"/>
+      <a class="exit-media" ng-click="media.large=false">
+        <i class="fa fa-close fa-lg"></i>
+      </a>
+    </div>
+    <img ng-src="[[ mtc.page.media ]]" class="hide-for-small animated-img" ng-animate-swap="mtc.page.media" />
   </div>
-  <img ng-if="mtc.page.media" ng-src="[[ mtc.page.media ]]" class="hide-for-small"/>
 </div>
+  

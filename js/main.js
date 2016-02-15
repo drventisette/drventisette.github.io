@@ -25,7 +25,7 @@ Dr27.helpers = {
 function MtcCtrl($scope){
   ctrl = this;
   $scope.$watchCollection('mtc.page', function(oldV, newV){
-    ctrl.page = newV;
+    this.page = newV;
   });
 }
 
@@ -40,17 +40,28 @@ function SandwichCtrl(SiteService, $location){
 }
 
 function PostsCtrl(SiteService, $scope){
-  this.accordion = {};
-  this.posts = SiteService.posts;
-  $scope.mtc.post = undefined;
-  $scope.mtc.page = {
-    title: 'Post Index'
+  var ctrl = this,
+      mtc = $scope.mtc;
+  ctrl.accordion = {};
+  ctrl.posts = SiteService.posts;
+    mtc.post = false;
+    mtc.page = {
+      title: 'Post Index'
+    };
+  
+  ctrl.toggleAccordion = function(id, e){
+    if(e.target.className.indexOf('label') === -1){
+      var section = id,
+          t = !ctrl.accordion[section];
+      for(var i=0; i<ctrl.posts.length; i++){
+        ctrl.accordion[ctrl.posts[i].id] = false;
+      }
+      ctrl.accordion[section] = t;
+    }
   };
   
-  this.toggleAccordion = function(id){
-    var section = 'post' + id;
-    this.accordion = {};
-    this.accordion[section] = !this.accordion[section];
+  ctrl.toggleFilter = function(tag, e){
+    ctrl.filter === tag ? ctrl.filter = '' : ctrl.filter = tag;
   };
 }
 
@@ -58,17 +69,16 @@ function PostCtrl(SiteService, $routeParams, $location, $scope){
   
   var ctrl = this,
       url = '/posts/' + $routeParams.y + '/' + $routeParams.m + '/' + $routeParams.d + '/' + $routeParams.title + '/',
+      mtc = $scope.mtc,
       promise = SiteService.getPost(url);
-  
-  $scope.mtc.post = undefined;
   
   promise.then(
     function(result){
       ctrl.post = result;
       ctrl.post.isFirst = ctrl.post.previous === '';
       ctrl.post.isLast = ctrl.post.next === '';
-      $scope.mtc.page = ctrl.post;
-      $scope.mtc.post = true;
+      mtc.page = ctrl.post;
+      mtc.post = true;
   },
     function(reason){
       console.log(reason);
@@ -81,15 +91,16 @@ function PostCtrl(SiteService, $routeParams, $location, $scope){
 
 function PageCtrl(SiteService, $routeParams, $location, $scope){
   var ctrl = this,
+      mtc = $scope.mtc,
       url = $location.url(),
-      promise = SiteService.getPage(url);
-  
-  $scope.mtc.page = undefined;
-  
+      promise;   
+  mtc.page = undefined;
+  promise = SiteService.getPage(url);
   promise.then(
     function(result){
       ctrl.page = result;
-      $scope.mtc.page = ctrl.page;
+      mtc.page = ctrl.page;
+      mtc.post = false;
     },
     function(error){
       console.log(error);
@@ -143,6 +154,7 @@ function SiteService($q){
       "url": '{{ site.baseurl }}{{ post.url }}',
       "date": '{{ post.date | date: "%d %B %Y" }}',
       "excerpt": helpers.DecodeHtml('{{ post.excerpt | remove: "<p>" | remove : "</p>" | escape }}'),
+      "tags": ('{{post.tags}}').split(','),
       "media": '{{ post.media }}',
       "content": helpers.DecodeHtml('{{ post.content | escape }}'),
       "cover": '{{ post.cover }}',
@@ -232,7 +244,7 @@ function router ($routeProvider) {
 
 var app = angular
 
-.module('myApp', ['ngRoute', 'ngResource'], function($interpolateProvider) {
+.module('myApp', ['ngRoute', 'ngResource', 'ngAnimate'], function($interpolateProvider) {
   $interpolateProvider.startSymbol('[[');
   $interpolateProvider.endSymbol(']]');
 })
@@ -250,7 +262,23 @@ var app = angular
     return $sce.trustAsHtml(htmlCode);
   };
 }])
-
+.filter("tagFilter", [function(){
+  return function(posts, filter){
+    filter = filter || '';
+    var output = [];
+    angular.forEach(posts, function(post){
+      if(post.tags.indexOf(filter) !== -1 ){
+        output.push(post);
+      }
+    });
+    if(output.length > 0){
+      return output;
+    }
+    else {
+      return posts;
+    }
+  };
+}])
 .controller('PostsCtrl', PostsCtrl)
 .controller('PostCtrl', PostCtrl)
 .controller('PageCtrl', PageCtrl)

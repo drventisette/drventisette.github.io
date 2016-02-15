@@ -156,7 +156,7 @@ body,
     top: 67%;
     height: auto;
     background-color: transparent;
-    z-index: 1;
+    z-index: 2;
     a {
       vertical-align: middle;
       line-height: 100%;
@@ -164,13 +164,106 @@ body,
   }
   .cover-d {
     height: 33%;
-    background-image: url("http://lorempixel.com/600/40");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center center;
+    padding: 0;
+    img {
+      object-fit: cover;
+      padding: 0;
+    }
     border-top: 3px solid #444;
     @media #{$medium-up} {
       border-left: 3px solid #444;
     }
   }
 }
+
+// ANIMATIONS
+
+.main-view {
+  width: 100%;
+  position:absolute;
+  top: 0;
+  transition: z-index 500ms linear;
+  animation-duration: .5s;
+  animation-timing-function: ease-in-out;
+}
+
+.main-view.ng-enter
+{
+  animation-name: slideInLeft;
+  z-index: 0;
+}
+
+.main-view.ng-enter.ng-enter-active
+{  
+  z-index: 1;
+}
+
+.main-view.ng-leave
+{  
+  animation-name: slideOutRight;
+  z-index: 1;
+}
+
+.main-view.ng-leave.ng-leave-active
+{
+  z-index: 0;
+}
+
+.animated-img
+{
+  position: absolute;
+  top: 0;
+  animation-duration: .5s;
+  animation-timing-function: ease-in-out;
+}
+
+.badge .animated-img.ng-enter
+{
+  animation-name: rotateIn;
+}
+
+.badge .animated-img.ng-leave
+{  
+  animation-name: rotateOut;
+}
+
+.hide-for-small.animated-img.ng-enter
+{
+  animation-name: slideInDown;
+}
+
+.hide-for-small.animated-img.ng-leave
+{  
+  animation-name: slideOutDown;
+}
+
+.cover-d .animated-img
+{
+  width: 100%;
+  height: 100%;
+  transition: z-index 300ms linear;
+  animation-duration: .3s;
+  animation-timing-function: ease-in-out;
+}
+
+.cover-d .animated-img.ng-enter
+{
+  animation-name: slideInUp;
+  z-index: 0;
+}
+
+.cover-d .animated-img.ng-enter.ng-enter-active
+{
+  z-index: 1;
+}
+
+.cover-d .animated-img.ng-leave
+{
+  z-index: 1;
+}
+
+.cover-d .animated-img.ng-leave.ng-leave-active
+{
+  z-index: 0;
+}
+
