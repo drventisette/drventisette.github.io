@@ -149,6 +149,7 @@ body,
       border-left: 3px solid #444;
       overflow-y: scroll; 
       background-color: ivory;
+      box-shadow: -12px 0 24px #999 inset;
     }
   }
   .nav-d {
@@ -180,10 +181,11 @@ body,
 
 .main-view {
   width: 100%;
+  min-height: 100%;
   position:absolute;
   top: 0;
-  transition: z-index 500ms linear;
-  animation-duration: .5s;
+  transition: z-index 100ms linear;
+  animation-duration: 1s;
   animation-timing-function: ease-in-out;
 }
 

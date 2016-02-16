@@ -39,7 +39,7 @@ function SandwichCtrl(SiteService, $location){
   }
 }
 
-function PostsCtrl(SiteService, $scope){
+function PostsCtrl(SiteService, $scope, $anchorScroll, $location, $animate){
   var ctrl = this,
       mtc = $scope.mtc;
   ctrl.accordion = {};
@@ -49,14 +49,26 @@ function PostsCtrl(SiteService, $scope){
       title: 'Post Index'
     };
   
+  
   ctrl.toggleAccordion = function(id, e){
+    var section = id,
+        t;
     if(e.target.className.indexOf('label') === -1){
-      var section = id,
-          t = !ctrl.accordion[section];
+      t = !ctrl.accordion[section];
       for(var i=0; i<ctrl.posts.length; i++){
         ctrl.accordion[ctrl.posts[i].id] = false;
       }
       ctrl.accordion[section] = t;
+      if(t){
+        var container = $('.text-content'),
+            target = $(e.target),
+            parent;
+        
+        parent = target.parents('.accordion-navigation');
+        container.animate({
+          scrollTop: parent.position().top
+        }, "slow");
+      }
     }
   };
   
@@ -209,7 +221,7 @@ function SiteService($q){
 }
 
 // Directives
-
+   
 // Configuration
 
 function router ($routeProvider) {
@@ -249,12 +261,12 @@ var app = angular
   $interpolateProvider.endSymbol(']]');
 })
 .run(function($rootScope){
-   $rootScope.$on('$viewContentLoaded', function () {
-      $(document).foundation({
-        offcanvas : {
-          close_on_click: true
-        }
-      });
+  $rootScope.$on('$viewContentLoaded', function () {
+    $(document).foundation({
+      offcanvas : {
+        close_on_click: true
+      }
+    });
   });
 })
 .filter("sanitize", ['$sce', function($sce) {
@@ -288,6 +300,5 @@ var app = angular
 .service('SiteService', SiteService)
 
 // .directive('directive', directive)
-
 .config(router);
 

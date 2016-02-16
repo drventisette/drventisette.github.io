@@ -3,18 +3,18 @@
   <ul class="accordion expanded" role="tablist" ng-model="posts.filter" ng-init="posts.filter = ''">
     <li class="accordion-navigation filter" ng-if="posts.filter !== ''">
       <a>
-        //
-        <span class="label success">
+        <i class="fa fa-tag"></i>
+        <span class="label">
           [[posts.filter]]
         </span>
         <i ng-click="posts.filter = ''" class="close fa fa-close right" title="Remove filter"></i>
       </a>
     </li>
     <li ng-repeat="post in posts.posts | tagFilter: posts.filter" class="accordion-navigation">
-      <a href="" ng-click="posts.toggleAccordion(post.id,$event)">
+      <a href="" ng-click="posts.toggleAccordion(post.id, $event)">
         <span ng-bind="post.title"></span>
-        <span class="round label right" ng-repeat="tag in post.tags" ng-click="posts.toggleFilter(tag, $event)" ng-class="{success: posts.filter === tag}" title="Filter by: [[tag]]">
-          [[ tag ]]
+        <span class="label right" ng-repeat="tag in post.tags" ng-click="posts.toggleFilter(tag, $event)" ng-class="{primary: posts.filter === tag, secondary: posts.filter !== tag}" title="Filter by: [[tag]]">
+          [[ tag ]] 
         </span>
       </a>
       <div class="content" ng-class="{'active': posts.accordion['[[post.id]]']}">
@@ -40,9 +40,9 @@
     </h1>
     <hr class="mvn">
     <p class="mtn text-right">
-    <span class="label secondary mrs" ng-repeat="tag in post.post.tags">
-      [[tag]]
-    </span>
+      <span class="label secondary mrs" ng-repeat="tag in post.post.tags">
+        [[tag]]
+      </span>
     </p>
     <div ng-bind-html="post.post.content | sanitize"></div>
   </div>
