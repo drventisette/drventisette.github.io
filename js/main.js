@@ -42,12 +42,22 @@ function SandwichCtrl(SiteService, $location){
 function PostsCtrl(SiteService, $scope, $anchorScroll, $location, $animate){
   var ctrl = this,
       mtc = $scope.mtc;
-  ctrl.accordion = {};
+  
+  /*
+  ctrl.accordion = array of objects
+  [{
+    active: true or false,
+    top: position of the accordion-navigation when the accordion is fully collapsed
+  }]
+  */
+  
+  ctrl.accordion = ctrl.accordion || {};
+  
   ctrl.posts = SiteService.posts;
-    mtc.post = false;
-    mtc.page = {
-      title: 'Post Index'
-    };
+  mtc.post = false;
+  mtc.page = {
+    title: 'Post Index'
+  };
   
   
   ctrl.toggleAccordion = function(id, e){
@@ -77,10 +87,10 @@ function PostsCtrl(SiteService, $scope, $anchorScroll, $location, $animate){
   };
 }
 
-function PostCtrl(SiteService, $routeParams, $location, $scope){
+function PostCtrl(SiteService, $stateParams, $location, $scope){
   
   var ctrl = this,
-      url = '/posts/' + $routeParams.y + '/' + $routeParams.m + '/' + $routeParams.d + '/' + $routeParams.title + '/',
+      url = '/posts/' + $stateParams.y + '/' + $stateParams.m + '/' + $stateParams.d + '/' + $stateParams.title + '/',
       mtc = $scope.mtc,
       promise = SiteService.getPost(url);
   
@@ -101,7 +111,7 @@ function PostCtrl(SiteService, $routeParams, $location, $scope){
   });
 }
 
-function PageCtrl(SiteService, $routeParams, $location, $scope){
+function PageCtrl(SiteService, $stateParams, $location, $scope){
   var ctrl = this,
       mtc = $scope.mtc,
       url = $location.url(),
@@ -224,42 +234,44 @@ function SiteService($q){
    
 // Configuration
 
-function router ($routeProvider) {
-  $routeProvider
-  .when('/posts/:y/:m/:d/:title', {
-    templateUrl: 'views/post.html',
-    controller: 'PostCtrl',
-    controllerAs: 'post'
-  })
+function stateRouter($stateProvider, $urlRouterProvider) {
   
-  {% for page in site.pages %}
-  .when('{{ page.url }}', {
-    templateUrl: 'views/page.html',
-    controller: 'PageCtrl',
-    controllerAs: 'page'
-  })
-  {% endfor %}
+  $urlRouterProvider.otherwise('/404/');
   
-  .when('/posts/', {
-    templateUrl: 'views/posts.html',
-    controller: 'PostsCtrl',
-    controllerAs: 'posts'
-  })
+  $stateProvider
+    .state('posts', {
+      url: '/posts/',
+      templateUrl: 'views/posts.html',
+      controller: 'PostsCtrl',
+      controllerAs: 'posts'
+    })
+     
+    .state('posts.post', {
+      url: '/:y/:m/:d/:title',
+      templateUrl: 'views/post.html',
+      controller: 'PostCtrl',
+      controllerAs: 'post'
+    })
   
-  .otherwise({
-    redirectTo: '/404/'
-  });
-
+    {% for page in site.pages %}
+    .state('{{ page.url }}', {
+      url: '{{ page.url }}',
+      templateUrl: 'views/page.html',
+      controller: 'PageCtrl',
+      controllerAs: 'page'
+    })
+    {% endfor %}
 }
 
 // App definition
 
 var app = angular
 
-.module('myApp', ['ngRoute', 'ngResource', 'ngAnimate'], function($interpolateProvider) {
+.module('myApp', ['ui.router', 'ngResource', 'ngAnimate'], function($interpolateProvider) {
   $interpolateProvider.startSymbol('[[');
   $interpolateProvider.endSymbol(']]');
 })
+.config(['$stateProvider', '$urlRouterProvider', stateRouter])
 .run(function($rootScope){
   $rootScope.$on('$viewContentLoaded', function () {
     $(document).foundation({
@@ -300,5 +312,4 @@ var app = angular
 .service('SiteService', SiteService)
 
 // .directive('directive', directive)
-.config(router);
-
+;
