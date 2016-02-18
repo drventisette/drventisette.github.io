@@ -31,6 +31,7 @@ function MtcCtrl($scope){
 
 function SandwichCtrl(SiteService, $location){
   this.pages = SiteService.pages;
+  console.log(this.pages);
   this.isActive = function(p){
     var r,
         url = $location.url();
@@ -39,9 +40,21 @@ function SandwichCtrl(SiteService, $location){
   }
 }
 
-function PostsCtrl(SiteService, $scope, $anchorScroll, $location, $animate){
+function PostsCtrl($scope, SiteService){
   var ctrl = this,
       mtc = $scope.mtc;
+  
+  ctrl.posts = SiteService.posts;
+  angular.forEach(ctrl.posts, function(post){
+    post.isActive = false;
+  })
+}
+
+function PostIndexCtrl($scope, $anchorScroll, $location, $animate){
+  var ctrl = this,
+      mtc = $scope.mtc;
+  
+  ctrl.posts = $scope.p.posts;
   
   /*
   ctrl.accordion = array of objects
@@ -51,24 +64,18 @@ function PostsCtrl(SiteService, $scope, $anchorScroll, $location, $animate){
   }]
   */
   
-  ctrl.accordion = ctrl.accordion || {};
   
-  ctrl.posts = SiteService.posts;
   mtc.post = false;
-  mtc.page = {
-    title: 'Post Index'
-  };
-  
   
   ctrl.toggleAccordion = function(id, e){
-    var section = id,
-        t;
+    var t;
+    console.log(ctrl.posts[id]);
     if(e.target.className.indexOf('label') === -1){
-      t = !ctrl.accordion[section];
-      for(var i=0; i<ctrl.posts.length; i++){
-        ctrl.accordion[ctrl.posts[i].id] = false;
+      t = !ctrl.posts[id].isActive;
+      for(var i=0; i < ctrl.posts.length; i++){
+        ctrl.posts[i].isActive = false;
       }
-      ctrl.accordion[section] = t;
+      ctrl.posts[id].isActive = t;
       if(t){
         var container = $('.text-content'),
             target = $(e.target),
@@ -90,16 +97,16 @@ function PostsCtrl(SiteService, $scope, $anchorScroll, $location, $animate){
 function PostCtrl(SiteService, $stateParams, $location, $scope){
   
   var ctrl = this,
-      url = '/posts/' + $stateParams.y + '/' + $stateParams.m + '/' + $stateParams.d + '/' + $stateParams.title + '/',
+      id = $stateParams.id,
       mtc = $scope.mtc,
-      promise = SiteService.getPost(url);
+      promise = SiteService.getPost(id);
   
   promise.then(
     function(result){
       ctrl.post = result;
       ctrl.post.isFirst = ctrl.post.previous === '';
       ctrl.post.isLast = ctrl.post.next === '';
-      mtc.page = ctrl.post;
+      mtc.page = ctrl.post
       mtc.post = true;
   },
     function(reason){
@@ -149,18 +156,22 @@ function SiteService($q){
     {
       "index": '{{ page.index }}',
       "url": '{{ site.baseurl }}{{ page.url }}',
-      "path": '{{ page.path }}',
+      "id": ('{{ page.path }}').substr(0, ('{{page.path}}').lastIndexOf('.')),
       "title": '{{ page.title }}',
-      "date": '{{ page.date | date: "%d %B %Y" }}',
-      "categories": ('{{ page.categories }}').split(','),
-      "tags": '{{ page.tags }}',
-      "excerpt": helpers.DecodeHtml('{{ page.excerpt | remove: "<p>" | remove : "</p>" | escape }}'),
       "media": '{{ page.media }}',
       "content": helpers.DecodeHtml('{{ page.content | escape }}'),
       "cover": '{{ page.cover }}'
-    }
-    {% if forloop.last %}{% else %},{% endif %}
+    },
     {% endfor %}
+    {
+      "index": 2,
+      "url": '{{ site.baseurl }}/posts',
+      "id": 'posts',
+      "title": 'Posts',      
+      "media": '',
+      "content": '',
+      "cover": ''
+    }
   ];
   {% endcapture %}
   
@@ -171,17 +182,16 @@ function SiteService($q){
   [
     {% for post in site.categories.posts %}
     {
-      "id": '{{ post.id }}',
+      "id": ('{{ post.path }}').slice(7,('{{ post.path }}').lastIndexOf('.')),
       "title": '{{ post.title }}',
-      "url": '{{ site.baseurl }}{{ post.url }}',
       "date": '{{ post.date | date: "%d %B %Y" }}',
       "excerpt": helpers.DecodeHtml('{{ post.excerpt | remove: "<p>" | remove : "</p>" | escape }}'),
       "tags": ('{{post.tags}}').split(','),
       "media": '{{ post.media }}',
       "content": helpers.DecodeHtml('{{ post.content | escape }}'),
       "cover": '{{ post.cover }}',
-      "previous": '{{ post.previous.id }}',
-      "next": '{{ post.next.id }}'
+      "previous": ('{{ post.previous.path }}').slice(7, ('{{ post.previous.path }}').lastIndexOf('.')),
+      "next": ('{{ post.next.path }}').slice(7,('{{ post.next.path }}').lastIndexOf('.'))
     }
     {% if forloop.last %}{% else %},{% endif %}
     {% endfor %}
@@ -190,18 +200,18 @@ function SiteService($q){
   
   this.posts = {{ posts | strip_newlines }};
   
-  this.getPost = function(url){
+  this.getPost = function(id){
     var deferred = $q.defer(),
         result,
         error;
-    deferred.notify('Looking for ' + url + '...');
-    if(result = helpers.get(url, this.posts, 'url'))
+    deferred.notify('Looking for ' + id + '...');
+    if(result = helpers.get(id, this.posts, 'id'))
     {
       deferred.resolve(result);
     }
     else
     {
-      error = 'Unable to find ' + url + '.';
+      error = 'Unable to find ' + id + '.';
       deferred.reject(error);
     }
     return deferred.promise;
@@ -240,21 +250,29 @@ function stateRouter($stateProvider, $urlRouterProvider) {
   
   $stateProvider
     .state('posts', {
-      url: '/posts/',
-      templateUrl: 'views/posts.html',
+      url: '/posts',
+      abstract: true,
+      template: '<div ui-view></div>',
       controller: 'PostsCtrl',
+      controllerAs: 'p'
+    })
+    
+    .state('posts.index', {
+      url: '/',
+      templateUrl: 'views/posts.html',
+      controller: 'PostIndexCtrl',
       controllerAs: 'posts'
     })
      
     .state('posts.post', {
-      url: '/:y/:m/:d/:title',
+      url: '/:id',
       templateUrl: 'views/post.html',
       controller: 'PostCtrl',
       controllerAs: 'post'
     })
   
     {% for page in site.pages %}
-    .state('{{ page.url }}', {
+    .state(('{{ page.path }}').slice(0,('{{ page.path }}').lastIndexOf('.')) , {
       url: '{{ page.url }}',
       templateUrl: 'views/page.html',
       controller: 'PageCtrl',
@@ -304,6 +322,7 @@ var app = angular
   };
 }])
 .controller('PostsCtrl', PostsCtrl)
+.controller('PostIndexCtrl', PostIndexCtrl)
 .controller('PostCtrl', PostCtrl)
 .controller('PageCtrl', PageCtrl)
 .controller('MtcCtrl', MtcCtrl)

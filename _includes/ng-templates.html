@@ -17,11 +17,11 @@
           [[ tag ]] 
         </span>
       </a>
-      <div class="content" ng-class="{'active': posts.accordion['[[post.id]]']}">
+      <div class="content" ng-class="{'active': posts.accordion['[[ post.id ]]']}">
         <p ng-bind="post.excerpt"></p>
         <hr/>
         <p class="text-right">
-        <a href="/#[[post.url]]">
+        <a ui-sref="posts.post({ id: post.id })">
           <i class="fa fa-arrow-right"></i>
           See the full post
         </a>
