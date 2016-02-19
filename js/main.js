@@ -31,7 +31,6 @@ function MtcCtrl($scope){
 
 function SandwichCtrl(SiteService, $location){
   this.pages = SiteService.pages;
-  console.log(this.pages);
   this.isActive = function(p){
     var r,
         url = $location.url();
@@ -42,49 +41,57 @@ function SandwichCtrl(SiteService, $location){
 
 function PostsCtrl($scope, SiteService){
   var ctrl = this,
-      mtc = $scope.mtc;
+      mtc = $scope.mtc,
+      li;
   
   ctrl.posts = SiteService.posts;
+  
   angular.forEach(ctrl.posts, function(post){
     post.isActive = false;
-  })
+  });
 }
 
 function PostIndexCtrl($scope, $anchorScroll, $location, $animate){
   var ctrl = this,
       mtc = $scope.mtc;
-  
-  ctrl.posts = $scope.p.posts;
-  
-  /*
-  ctrl.accordion = array of objects
-  [{
-    active: true or false,
-    top: position of the accordion-navigation when the accordion is fully collapsed
-  }]
-  */
-  
-  
+    
   mtc.post = false;
   
-  ctrl.toggleAccordion = function(id, e){
+  ctrl.scrollToActive = function(target){
+    target = $(target) || 'top';
+    var container = $('.text-content'),
+        li = target.parents('.accordion-navigation'),
+        parent = $('.accordion'),
+        position = li.prevAll('.accordion-navigation').length,
+        offsetTop;
+    
+    target === 'top' ? offsetTop = 0 :
+    offsetTop = parent.position().top + (li.height() * position);
+    
+    container.animate({
+      scrollTop: offsetTop
+    }, "slow");
+  };
+  
+  ctrl.toggleAccordion = function(post, e){
     var t;
-    console.log(ctrl.posts[id]);
-    if(e.target.className.indexOf('label') === -1){
-      t = !ctrl.posts[id].isActive;
-      for(var i=0; i < ctrl.posts.length; i++){
-        ctrl.posts[i].isActive = false;
-      }
-      ctrl.posts[id].isActive = t;
+    
+    post = post || 'all';
+    
+    if(post !== 'all'){
+      t = !post.isActive;
+    }
+    
+    angular.forEach($scope.p.posts, function(p){
+      p.isActive = false;
+    });
+    
+    if(post !== 'all' && e.target.className.indexOf('label') === -1){
+      
+      post.isActive = t;
+      
       if(t){
-        var container = $('.text-content'),
-            target = $(e.target),
-            parent;
-        
-        parent = target.parents('.accordion-navigation');
-        container.animate({
-          scrollTop: parent.position().top
-        }, "slow");
+        ctrl.scrollToActive(e.target);
       }
     }
   };
@@ -154,7 +161,7 @@ function SiteService($q){
   [
     {% for page in site-pages %}
     {
-      "index": '{{ page.index }}',
+      "index": {{ page.index }},
       "url": '{{ site.baseurl }}{{ page.url }}',
       "id": ('{{ page.path }}').substr(0, ('{{page.path}}').lastIndexOf('.')),
       "title": '{{ page.title }}',
@@ -166,7 +173,7 @@ function SiteService($q){
     {
       "index": 2,
       "url": '{{ site.baseurl }}/posts',
-      "id": 'posts',
+      "id": 'posts.index',
       "title": 'Posts',      
       "media": '',
       "content": '',
@@ -176,7 +183,7 @@ function SiteService($q){
   {% endcapture %}
   
   this.pages = {{ pages | strip_newlines }};
-  
+   
   // Site's posts
   {% capture posts %}
   [
@@ -261,14 +268,16 @@ function stateRouter($stateProvider, $urlRouterProvider) {
       url: '/',
       templateUrl: 'views/posts.html',
       controller: 'PostIndexCtrl',
-      controllerAs: 'posts'
+      controllerAs: 'posts',
+      parent: 'posts'
     })
      
     .state('posts.post', {
       url: '/:id',
       templateUrl: 'views/post.html',
       controller: 'PostCtrl',
-      controllerAs: 'post'
+      controllerAs: 'post',
+      parent: 'posts'
     })
   
     {% for page in site.pages %}

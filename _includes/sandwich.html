@@ -15,7 +15,7 @@
 
 <nav class="right-off-canvas-menu" ng-controller="SandwichCtrl as sandwich">
   <ul class="off-canvas-list">
-    <li ng-repeat="page in sandwich.pages" ng-class="sandwich.isActive(page);" ng-if="page.index > 0">
+    <li ng-repeat="page in sandwich.pages | orderBy: 'index'" ng-class="sandwich.isActive(page);" ng-if="page.index > 0">
       <a ui-sref="[[ page.id ]]" ng-bind="page.title"></a>
     </li>
   </ul>

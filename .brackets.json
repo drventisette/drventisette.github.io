@@ -1,0 +1,5 @@
+{
+    "jscodehints.detectedExclusions": [
+        "/home/dr27/projects/drventisette.github.io/bower_components/modernizr/feature-detects/exif-orientation.js"
+    ]
+}

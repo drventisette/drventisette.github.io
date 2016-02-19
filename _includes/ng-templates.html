@@ -1,6 +1,16 @@
 <script type="text/ng-template" id="views/posts.html">
-  <h2 class="pam">Posts</h2>
+  <h2 class="pam">
+    Posts
+    <small class="mbn" ng-if="posts.filter !== ''">
+      <i class="fa fa-tag"></i>
+       [[posts.filter]] | 
+      <a ng-click="posts.filter = ''" title="Remove filter">
+        <small>remove filter</small>
+      </a>
+    </small>
+  </h2>
   <ul class="accordion expanded" role="tablist" ng-model="posts.filter" ng-init="posts.filter = ''">
+    <!--
     <li class="accordion-navigation filter" ng-if="posts.filter !== ''">
       <a>
         <i class="fa fa-tag"></i>
@@ -10,14 +20,16 @@
         <i ng-click="posts.filter = ''" class="close fa fa-close right" title="Remove filter"></i>
       </a>
     </li>
-    <li ng-repeat="post in posts.posts | tagFilter: posts.filter" class="accordion-navigation">
-      <a href="" ng-click="posts.toggleAccordion(post.id, $event)">
+-->
+    <li ng-repeat="post in p.posts | tagFilter: posts.filter" class="accordion-navigation" id="[[post.id]]" ng-class="{primary: post.isActive}">
+      <a class="prl" href="" ng-click="posts.toggleAccordion(post, $event)">
         <span ng-bind="post.title"></span>
-        <span class="label right" ng-repeat="tag in post.tags" ng-click="posts.toggleFilter(tag, $event)" ng-class="{primary: posts.filter === tag, secondary: posts.filter !== tag}" title="Filter by: [[tag]]">
+        <br/>
+        <span class="label" ng-repeat="tag in post.tags" ng-click="posts.toggleFilter(tag, $event)" ng-class="{primary: posts.filter === tag, secondary: posts.filter !== tag}" title="Filter by: [[tag]]">
           [[ tag ]] 
         </span>
       </a>
-      <div class="content" ng-class="{'active': posts.accordion['[[ post.id ]]']}">
+      <div class="content" ng-class="{'active': post.isActive}">
         <p ng-bind="post.excerpt"></p>
         <hr/>
         <p class="text-right">
