@@ -49,6 +49,30 @@ function PostsCtrl($scope, SiteService){
   angular.forEach(ctrl.posts, function(post){
     post.isActive = false;
   });
+  
+  $scope.$watch('ctrl.posts', function(newVal, oldVal){
+    ctrl.activePost = false;
+    angular.forEach(newVal, function(post){
+      if(post.isActive){
+        ctrl.activePost = post;
+      }
+    });
+    console.log(ctrl.posts);
+  }, true);
+  
+  ctrl.scrollToActive = function(target){
+    target = $(target);
+    var container = $('.text-content'),
+        li = target.parents('.accordion-navigation'),
+        parent = $('.accordion'),
+        position = li.prevAll('.accordion-navigation').length,
+        offsetTop;
+    
+    offsetTop = parent.position().top + (li.height() * position);
+    container.animate({
+      scrollTop: offsetTop
+    }, "slow");
+  };
 }
 
 function PostIndexCtrl($scope, $anchorScroll, $location, $animate){
@@ -56,22 +80,6 @@ function PostIndexCtrl($scope, $anchorScroll, $location, $animate){
       mtc = $scope.mtc;
     
   mtc.post = false;
-  
-  ctrl.scrollToActive = function(target){
-    target = $(target) || 'top';
-    var container = $('.text-content'),
-        li = target.parents('.accordion-navigation'),
-        parent = $('.accordion'),
-        position = li.prevAll('.accordion-navigation').length,
-        offsetTop;
-    
-    target === 'top' ? offsetTop = 0 :
-    offsetTop = parent.position().top + (li.height() * position);
-    
-    container.animate({
-      scrollTop: offsetTop
-    }, "slow");
-  };
   
   ctrl.toggleAccordion = function(post, e){
     var t;
@@ -83,15 +91,19 @@ function PostIndexCtrl($scope, $anchorScroll, $location, $animate){
     }
     
     angular.forEach($scope.p.posts, function(p){
-      p.isActive = false;
+      if(p === post){
+        post.isActive = t;
+      }
+      else
+      {
+        p.isActive = false;
+      }
     });
     
-    if(post !== 'all' && e.target.className.indexOf('label') === -1){
-      
-      post.isActive = t;
+    if(post !== 'all' && e.target.className.indexOf('label') === -1){ 
       
       if(t){
-        ctrl.scrollToActive(e.target);
+        $scope.p.scrollToActive(e.target);
       }
     }
   };
@@ -115,6 +127,9 @@ function PostCtrl(SiteService, $stateParams, $location, $scope){
       ctrl.post.isLast = ctrl.post.next === '';
       mtc.page = ctrl.post
       mtc.post = true;
+      $('.text-content').animate({
+        scrollTop: 0
+      }, "slow");
   },
     function(reason){
       console.log(reason);

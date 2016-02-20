@@ -270,13 +270,28 @@ body,
   z-index: 0;
 }
 
-// ACCORDION
-
-.accordion-navigation {
-  transition: background 300ms ease-in-out, color 300ms ease-in-out;
+.post-title.ng-anchor {
+  transition: 0.5 linear all;
 }
 
-.accordion-navigation.primary {
-  background: #{$primary-color};
-  color: white;
+.post-title.ng-anchor-out {
+  transition: 0.5s linear all;
+  transform: scale(1.2);
+}
+
+.post-title.ng-anchor-in {
+  transition: 1s linear all;
+}
+
+// ACCORDION
+
+.accordion {
+  .accordion-navigation>a {
+    transition: background 500ms ease-in-out, color 300ms ease-in-out;
+  }
+
+  .accordion-navigation.selected>a {
+    background-color: #444;
+    color: ivory;
+  }
 }
