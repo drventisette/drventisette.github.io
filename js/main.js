@@ -39,76 +39,77 @@ function SandwichCtrl(SiteService, $location){
   }
 }
 
-function PostsCtrl($scope, SiteService){
+function PostsCtrl($scope, SiteService, $timeout){
   var ctrl = this,
       mtc = $scope.mtc,
       li;
   
+  // Define posts array
   ctrl.posts = SiteService.posts;
   
-  angular.forEach(ctrl.posts, function(post){
-    post.isActive = false;
-  });
+  // Default all posts to inactive on first load
+  ctrl.activePost = undefined;
   
-  $scope.$watch('ctrl.posts', function(newVal, oldVal){
-    ctrl.activePost = false;
-    angular.forEach(newVal, function(post){
-      if(post.isActive){
-        ctrl.activePost = post;
-      }
-    });
-    console.log(ctrl.posts);
-  }, true);
+  // $Watch posts array to apply changes once a post is activated
+  $scope.$watch(
+    function(scope){
+      return(ctrl.activePost);
+    },
+    function(newVal, oldVal){
+      angular.forEach(ctrl.posts, function(post){
+        post === newVal ? post.isActive = true : post.isActive = false;
+      });
+    }, true);
   
-  ctrl.scrollToActive = function(target){
-    target = $(target);
-    var container = $('.text-content'),
-        li = target.parents('.accordion-navigation'),
-        parent = $('.accordion'),
-        position = li.prevAll('.accordion-navigation').length,
-        offsetTop;
-    
-    offsetTop = parent.position().top + (li.height() * position);
-    container.animate({
-      scrollTop: offsetTop
-    }, "slow");
+  // Helper method to scroll the container
+  ctrl.scrollTo = function(target){
+    var container = $('.text-content');
+    if(target === 'top'){
+      container.animate({
+        scrollTop: 0
+      }, 500);
+    }
+    else
+    {
+      var li = $('#'+target),
+          a = $('#'+target+' a'),
+          parent = $('.accordion'),
+          position = li.prevAll('.accordion-navigation').length,
+          offsetTop = Math.round(parent.position().top + (a.innerHeight() * position));
+      container.animate({
+        scrollTop: offsetTop
+      }, "slow");
+    }
   };
 }
 
-function PostIndexCtrl($scope, $anchorScroll, $location, $animate){
+function PostIndexCtrl($scope, $anchorScroll, $location, $animate, $timeout){
   var ctrl = this,
       mtc = $scope.mtc;
-    
   mtc.post = false;
+  console.log(mtc.page);
   
+  $scope.p.activePost = undefined;
+  $scope.p.scrollTo('top');
+  
+  // Helper method to collapse/uncollapse accordion sections
   ctrl.toggleAccordion = function(post, e){
-    var t;
-    
-    post = post || 'all';
-    
-    if(post !== 'all'){
-      t = !post.isActive;
-    }
-    
-    angular.forEach($scope.p.posts, function(p){
-      if(p === post){
-        post.isActive = t;
+    if(e.target.className.indexOf('label') === -1){
+      if(post.isActive){
+        $scope.p.activePost = undefined;
       }
       else
       {
-        p.isActive = false;
-      }
-    });
-    
-    if(post !== 'all' && e.target.className.indexOf('label') === -1){ 
-      
-      if(t){
-        $scope.p.scrollToActive(e.target);
+        $scope.p.activePost = post;
+        $scope.p.scrollTo(post.id);
       }
     }
   };
   
+  // Helper method to filter the posts array
   ctrl.toggleFilter = function(tag, e){
+    $scope.p.activePost = '';
+    $scope.p.scrollTo('top');
     ctrl.filter === tag ? ctrl.filter = '' : ctrl.filter = tag;
   };
 }
@@ -123,13 +124,14 @@ function PostCtrl(SiteService, $stateParams, $location, $scope){
   promise.then(
     function(result){
       ctrl.post = result;
+      $scope.p.scrollTo('top');
+      if($scope.p.activePost !== ctrl.post){
+        $scope.p.activePost = ctrl.post;
+      }
       ctrl.post.isFirst = ctrl.post.previous === '';
       ctrl.post.isLast = ctrl.post.next === '';
       mtc.page = ctrl.post
       mtc.post = true;
-      $('.text-content').animate({
-        scrollTop: 0
-      }, "slow");
   },
     function(reason){
       console.log(reason);
@@ -274,7 +276,7 @@ function stateRouter($stateProvider, $urlRouterProvider) {
     .state('posts', {
       url: '/posts',
       abstract: true,
-      template: '<div ui-view></div>',
+      template: '<div ui-view class="post-view"></div>',
       controller: 'PostsCtrl',
       controllerAs: 'p'
     })

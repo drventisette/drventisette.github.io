@@ -10,9 +10,9 @@
     </small>
   </h2>
   <ul class="accordion expanded" role="tablist" ng-model="posts.filter" ng-init="posts.filter = ''">
-    <li ng-repeat="post in p.posts | tagFilter: posts.filter" class="accordion-navigation" id="[[post.id]]" ng-class="{selected: post.isActive}">
+    <li ng-repeat="post in p.posts | tagFilter: posts.filter" class="accordion-navigation" ng-attr-id="[[post.id]]" ng-class="{selected: post.isActive}">
       <a class="prl" href="" ng-click="posts.toggleAccordion(post, $event)">
-        <span class="post-title" ng-animate-ref="[[ post.id ]]" ng-bind="post.title"></span>
+        <span ng-bind="post.title"></span>
         <br/>
         <span class="label" ng-repeat="tag in post.tags" ng-click="posts.toggleFilter(tag, $event)" ng-class="{primary: posts.filter === tag, secondary: posts.filter !== tag}" title="Filter by: [[tag]]">
           [[ tag ]] 
@@ -34,7 +34,10 @@
 
 <script type="text/ng-template" id="views/post.html">
   <div class="pam">
-    <h1 class="post-title" ng-animate-ref="[[post.post.id]]">[[ post.post.title]]
+    <h1>
+      <span>
+        [[ post.post.title]]
+      </span>
       <small>
         [[ post.post.date ]]
       </small>

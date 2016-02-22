@@ -148,7 +148,7 @@ body,
     .text-content {
       height: 100%;
       border-left: 3px solid #444;
-      overflow-y: scroll; 
+      overflow-y: scroll;
       background-color: ivory;
       box-shadow: -12px 0 24px #999 inset;
     }
@@ -180,12 +180,14 @@ body,
 
 // ANIMATIONS
 
-.main-view {
+.main-view,
+.post-view
+{
   width: 100%;
   min-height: 100%;
   position:absolute;
   top: 0;
-  transition: z-index 100ms linear;
+  transition: z-index 300ms linear;
   animation-duration: 1s;
   animation-timing-function: ease-in-out;
 }
@@ -210,6 +212,21 @@ body,
 .main-view.ng-leave.ng-leave-active
 {
   z-index: 0;
+}
+
+.post-view.ng-enter {
+  z-index: 0;
+  animation: slideInLeft .5s linear;
+}
+.post-view.ng-enter.ng-enter-active {
+  z-index: 1;
+}
+.post-view.ng-leave.ng-leave-active {
+  z-index: 0;
+}
+.post-view.ng-leave {
+  animation: slideOutRight .5s linear;
+  z-index: 1;
 }
 
 .animated-img
@@ -268,19 +285,6 @@ body,
 .cover-d .animated-img.ng-leave.ng-leave-active
 {
   z-index: 0;
-}
-
-.post-title.ng-anchor {
-  transition: 0.5 linear all;
-}
-
-.post-title.ng-anchor-out {
-  transition: 0.5s linear all;
-  transform: scale(1.2);
-}
-
-.post-title.ng-anchor-in {
-  transition: 1s linear all;
 }
 
 // ACCORDION
