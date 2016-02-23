@@ -1,6 +1,6 @@
 <script type="text/ng-template" id="views/posts.html">
   <h2 class="pam">
-    Posts
+    [[ posts.page.title ]]
     <small class="mbn" ng-if="posts.filter !== ''">
       <i class="fa fa-tag"></i>
        [[posts.filter]] | 
@@ -48,7 +48,7 @@
         [[tag]]
       </span>
     </p>
-    <div ng-bind-html="post.post.content | sanitize"></div>
+    <div class="post-content" ng-bind-html="post.post.content | sanitize"></div>
   </div>
 </script>
 

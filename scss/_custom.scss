@@ -169,12 +169,22 @@ body,
     padding: 0;
     img {
       object-fit: cover;
+      object-position: bottom center;
       padding: 0;
     }
     border-top: 3px solid #444;
     @media #{$medium-up} {
       border-left: 3px solid #444;
     }
+  }
+}
+
+.post-content {
+  p:first-child {
+    @extend blockquote;
+    border: none;
+    padding: 0;
+    font-size: 1.2em;
   }
 }
 

@@ -83,14 +83,26 @@ function PostsCtrl($scope, SiteService, $timeout){
   };
 }
 
-function PostIndexCtrl($scope, $anchorScroll, $location, $animate, $timeout){
+function PostIndexCtrl(SiteService, $scope, $location, $timeout){
   var ctrl = this,
-      mtc = $scope.mtc;
-  mtc.post = false;
-  console.log(mtc.page);
-  
-  $scope.p.activePost = undefined;
-  $scope.p.scrollTo('top');
+      url = '/posts/',
+      promise;
+  promise = SiteService.getPage(url);
+  promise.then(
+    function(result){
+      ctrl.page = result;
+      $scope.mtc.page = ctrl.page;
+      $scope.mtc.post = false;
+      $scope.p.activePost = undefined;
+      $scope.p.scrollTo('top');
+    },
+    function(error){
+      console.log(error);
+      $location.path('/404/');
+    },
+    function(update){
+      console.log('update');
+    });
   
   // Helper method to collapse/uncollapse accordion sections
   ctrl.toggleAccordion = function(post, e){
@@ -189,12 +201,12 @@ function SiteService($q){
     {% endfor %}
     {
       "index": 2,
-      "url": '{{ site.baseurl }}/posts',
+      "url": '{{ site.baseurl }}/posts/',
       "id": 'posts.index',
       "title": 'Posts',      
-      "media": '',
+      "media": '/img/building.jpg',
       "content": '',
-      "cover": ''
+      "cover": '/img/building.jpg'
     }
   ];
   {% endcapture %}
