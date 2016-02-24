@@ -62,13 +62,24 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-aside.right-off-canvas-menu {
-  background: #{$primary-color};
-  border-left: 3px solid #444;
-  ul.off-canvas-list li a {
-    background: transparent;
-    color: #333;
-    border-bottom: 3px solid #444;
+.right-off-canvas-menu {
+  overflow-x: visible;
+  z-index: 1004;
+  ul.off-canvas-list li.active {
+    background-color: #{$primary-color};
+  }
+  ul.off-canvas-list li.active::before {
+    content: '';
+    display: inline-block;
+    position: relative;
+    width: 0;
+    height: 0;
+    border-top: 18px solid transparent;
+    border-bottom: 18px solid transparent;
+    border-right: 18px solid #444;
+    top: 0;
+    left: -18px;
+    float: left;
   }
 }
 

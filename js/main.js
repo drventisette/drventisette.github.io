@@ -34,18 +34,18 @@ function SandwichCtrl(SiteService, $location){
   this.isActive = function(p){
     var r,
         url = $location.url();
-    url.indexOf(p.url) > -1 ? r = 'active' : r = '';
+        url === p.url ? r = 'active' : r = '';
     return r;
   }
 }
 
-function PostsCtrl($scope, SiteService, $timeout){
+function PostsCtrl($scope, getPosts, $timeout){
   var ctrl = this,
       mtc = $scope.mtc,
       li;
   
   // Define posts array
-  ctrl.posts = SiteService.posts;
+  ctrl.posts = getPosts;
   
   // Default all posts to inactive on first load
   ctrl.activePost = undefined;
@@ -83,26 +83,14 @@ function PostsCtrl($scope, SiteService, $timeout){
   };
 }
 
-function PostIndexCtrl(SiteService, $scope, $location, $timeout){
-  var ctrl = this,
-      url = '/posts/',
-      promise;
-  promise = SiteService.getPage(url);
-  promise.then(
-    function(result){
-      ctrl.page = result;
-      $scope.mtc.page = ctrl.page;
-      $scope.mtc.post = false;
-      $scope.p.activePost = undefined;
-      $scope.p.scrollTo('top');
-    },
-    function(error){
-      console.log(error);
-      $location.path('/404/');
-    },
-    function(update){
-      console.log('update');
-    });
+function PostIndexCtrl($scope, getPage, $timeout){
+  var ctrl = this;
+  
+  ctrl.page = getPage;
+  $scope.mtc.page = ctrl.page;
+  $scope.mtc.post = false;
+  $scope.p.activePost = undefined;
+  $scope.p.scrollTo('top');
   
   // Helper method to collapse/uncollapse accordion sections
   ctrl.toggleAccordion = function(post, e){
@@ -126,54 +114,33 @@ function PostIndexCtrl(SiteService, $scope, $location, $timeout){
   };
 }
 
-function PostCtrl(SiteService, $stateParams, $location, $scope){
+function PostCtrl(getPost, $scope){
   
   var ctrl = this,
-      id = $stateParams.id,
-      mtc = $scope.mtc,
-      promise = SiteService.getPost(id);
+      mtc = $scope.mtc;
   
-  promise.then(
-    function(result){
-      ctrl.post = result;
-      $scope.p.scrollTo('top');
-      if($scope.p.activePost !== ctrl.post){
-        $scope.p.activePost = ctrl.post;
-      }
-      ctrl.post.isFirst = ctrl.post.previous === '';
-      ctrl.post.isLast = ctrl.post.next === '';
-      mtc.page = ctrl.post
-      mtc.post = true;
-  },
-    function(reason){
-      console.log(reason);
-      $location.path('/404/');
-  },
-    function(update){
-      console.log(update);
-  });
+  ctrl.post = getPost;
+  
+  $scope.p.scrollTo('top');
+  
+  if($scope.p.activePost !== ctrl.post){
+    $scope.p.activePost = ctrl.post;
+  }
+  
+  ctrl.post.isFirst = ctrl.post.previous === '';
+  ctrl.post.isLast = ctrl.post.next === '';
+  
+  mtc.page = ctrl.post
+  mtc.post = true;
 }
 
-function PageCtrl(SiteService, $stateParams, $location, $scope){
+function PageCtrl(getPage, $scope){
   var ctrl = this,
-      mtc = $scope.mtc,
-      url = $location.url(),
-      promise;   
-  mtc.page = undefined;
-  promise = SiteService.getPage(url);
-  promise.then(
-    function(result){
-      ctrl.page = result;
-      mtc.page = ctrl.page;
-      mtc.post = false;
-    },
-    function(error){
-      console.log(error);
-      $location.path('/404/');
-    },
-    function(update){
-      console.log('update');
-    });
+      mtc = $scope.mtc;
+  
+  ctrl.page = getPage;
+  mtc.page = ctrl.page;
+  mtc.post = false;
 }
 
 // Services
@@ -289,6 +256,11 @@ function stateRouter($stateProvider, $urlRouterProvider) {
       url: '/posts',
       abstract: true,
       template: '<div ui-view class="post-view"></div>',
+      resolve: {
+        getPosts: function(SiteService){
+          return SiteService.posts;
+        }
+      },
       controller: 'PostsCtrl',
       controllerAs: 'p'
     })
@@ -297,6 +269,13 @@ function stateRouter($stateProvider, $urlRouterProvider) {
       url: '/',
       templateUrl: 'views/posts.html',
       controller: 'PostIndexCtrl',
+      resolve: {
+        getPage: function($state, SiteService){
+          var url = '/posts/',
+              promise = SiteService.getPage(url);
+          return promise;
+        }
+      },
       controllerAs: 'posts',
       parent: 'posts'
     })
@@ -305,14 +284,28 @@ function stateRouter($stateProvider, $urlRouterProvider) {
       url: '/:id',
       templateUrl: 'views/post.html',
       controller: 'PostCtrl',
+      resolve: {
+        getPost: function(SiteService, $state, $stateParams){
+          var id = $stateParams.id,
+              promise = SiteService.getPost(id);
+          return promise;
+      }
+    },
       controllerAs: 'post',
       parent: 'posts'
-    })
+  })
   
     {% for page in site.pages %}
     .state(('{{ page.path }}').slice(0,('{{ page.path }}').lastIndexOf('.')) , {
       url: '{{ page.url }}',
       templateUrl: 'views/page.html',
+      resolve: {
+        getPage: function($state, SiteService){
+          var url = '{{ page.url }}',
+              promise = SiteService.getPage(url);
+          return promise;
+        }
+      },
       controller: 'PageCtrl',
       controllerAs: 'page'
     })
