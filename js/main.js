@@ -32,10 +32,16 @@ function MtcCtrl($scope){
 function SandwichCtrl(SiteService, $location){
   this.pages = SiteService.pages;
   this.isActive = function(p){
-    var r,
+    var activeClass = '',
         url = $location.url();
-        url === p.url ? r = 'active' : r = '';
-    return r;
+    if(url === p.url ){
+      activeClass = 'active';
+      
+    }
+    else if(p.url !== '/'){
+      url.indexOf(p.url) !== -1 ? activeClass = 'active' : activeClass = '';
+    }
+    return activeClass;
   }
 }
 
@@ -163,7 +169,8 @@ function SiteService($q){
       "title": '{{ page.title }}',
       "media": '{{ page.media }}',
       "content": helpers.DecodeHtml('{{ page.content | escape }}'),
-      "cover": '{{ page.cover }}'
+      "cover": '{{ page.cover }}',
+      "icon": '{{ page.icon }}'
     },
     {% endfor %}
     {
@@ -173,7 +180,8 @@ function SiteService($q){
       "title": 'Posts',      
       "media": '/img/building.jpg',
       "content": '',
-      "cover": '/img/building.jpg'
+      "cover": '/img/building.jpg',
+      "icon": 'fa fa-file'
     }
   ];
   {% endcapture %}
@@ -325,7 +333,8 @@ var app = angular
   $rootScope.$on('$viewContentLoaded', function () {
     $(document).foundation({
       offcanvas : {
-        close_on_click: true
+        close_on_click: true,
+        open_method: 'overlap'
       }
     });
   });

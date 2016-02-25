@@ -63,20 +63,30 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .right-off-canvas-menu {
-  overflow-x: visible;
-  z-index: 1004;
-  ul.off-canvas-list li.active {
-    background-color: #{$primary-color};
+  padding-left: 19px;
+  background-color: transparent;
+  
+  ul.off-canvas-list {
+    background-color: #333;
+    height: 100%;
   }
-  ul.off-canvas-list li.active::before {
+  ul.off-canvas-list li.active a {
+    background-color: #{$primary-color};
+    font-weight: bold;
+  }
+  ul.off-canvas-list li a {  
+    position: relative;
+    width: 100%;
+  }
+  ul.off-canvas-list li.active a::before {
     content: '';
     display: inline-block;
-    position: relative;
+    position: absolute;
     width: 0;
     height: 0;
     border-top: 18px solid transparent;
     border-bottom: 18px solid transparent;
-    border-right: 18px solid #444;
+    border-right: 18px solid #{$primary-color};
     top: 0;
     left: -18px;
     float: left;
@@ -89,7 +99,7 @@ body,
 .off-canvas-wrap .inner-wrap,
 .off-canvas-wrap .inner-wrap .site-wrapper,
 .off-canvas-wrap .inner-wrap .site-wrapper .main {
-  background-color: #{$primary-color};
+  background-color: transparent;
   height: 100%;
   width: 100%;
 }
@@ -140,7 +150,7 @@ body,
     border-radius: 0 !important;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(255,255,255,.85);
+    background-color: rgba(0,0,0,.85);
     .exit-media {
       visibility: visible;
       position: absolute;
