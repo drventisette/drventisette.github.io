@@ -58,6 +58,6 @@
       <small>[[ page.page.date ]]</small>
       <br/>
     </h1>
-    <div ng-bind-html="page.page.content | sanitize"></div>
+    <div compile="page.page.content | sanitize"></div>
   </div>
 </script>
