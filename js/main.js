@@ -274,20 +274,118 @@ function resumeDirective($sce, $compile){
     replace: 'true',
     template: '<div><canvas id="resume" style="border: 1px solid black;"></canvas></div>',
     link: function(scope, elem, attrs){
+      
+    // Check if requestAnimationFrame is supported  
       (function () {
           var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
           window.requestAnimationFrame = requestAnimationFrame;
       })();
-
+      
+      var actorChars = {
+        "@": Player,
+        "o": Coin,
+        "=": Lava,
+        "|": Lava,
+        "v": Lava
+      };
+      
+      function Level(plan) {
+        this.width = plan[0].length;
+        this.height = plan.length;
+        this.grid = [];
+        this.actors = [];
+        
+        for(var y = 0; y < this.height; y++){
+          var line = plan[y], gridLine = [];
+          for (var x=0; x<this.width; x++){
+            var ch = line[x], fieldType = null;
+            var Actor = actorChars[ch];
+            if(Actor){
+              this.actors.push(new Actor(new Vector(x,y), ch));
+            }
+            else if (ch == "x"){
+              fieldType = "wall";
+            }
+            else if (ch == "!"){
+              fieldType = "lava";
+            }
+            gridLine.push(fieldType);
+          }
+          this.grid.push(gridLine);
+        }
+        
+        this.player = this.actors.filter(function(actor){
+          return actor.type == "player";
+        })[0];
+        this.status = this.finishDelay = null;
+      }
+      Level.prototype.isFinished = function(){
+          return this.status != null && this.finishDelay < 0;
+        };
+      
+      function Vector(x,y){
+        this.x = x; this.y = y;
+      }
+      Vector.prototype.plus = function(other){
+          return new Vector(this.x + other.x, this.y + other.y);
+        };
+      Vector.prototype.times = function(factor) {
+          return new Vector(this.x * factor, this.y * factor)
+      };
+        
+      function Player(pos){
+        this.pos = pos.plus(new Vector(0, -0.5));
+        this.size = new Vector(0.8, 1.5);
+        this.speed = new Vector(0,0);
+      }
+      Player.prototype.type = "player";
+      
+      function Lava(pos, ch) {
+        this.pos = pos;
+        this.size = new Vector(1, 1);
+        if (ch == "=") {
+          this.speed = new Vector(2, 0);
+        } else if (ch == "|") {
+          this.speed = new Vector(0, 2);
+        } else if (ch == "v") {
+          this.speed = new Vector(0, 3);
+          this.repeatPos = pos;
+        }
+      }
+      Lava.prototype.type = "lava";
+        
+      function Coin(pos) {
+        this.basePos = this.pos = pos.plus(new Vector(0.2, 0.1));
+        this.size = new Vector(0.6, 0.6);
+        this.wobble = Math.random() * Math.PI * 2;
+      }
+      Coin.prototype.type = "coin";
+        
+        var simpleLevelPlan = [
+          "                      ",
+          "                      ",
+          "                  xx  ",
+          "xxx         o o    x  ",
+          "  x@    x  xxxxx   x  ",
+          "  xxxxx            x  ",
+          "      x!!!!!!!!!!!!x  ",
+          "      xxxxxxxxxxxxxx  ",
+          "                      "
+        ],
+            simpleLevel = new Level(simpleLevelPlan);
+      console.log(simpleLevel);
+      
+    // Define basic variables
       var canvas = $(elem).children()[0],
           ctx = canvas.getContext("2d"),
-          width = 500,
-          height = 200,
+          tile = 20,
+          width = simpleLevel.width * tile,
+          height = simpleLevel.height * tile,
           player = {
-              x: width / 2,
-              y: height - 15,
-              width: 5,
-              height: 5,
+              x: simpleLevel.player.pos.x * tile,
+              y: simpleLevel.player.pos.y * tile,
+              width: simpleLevel.player.size.x * tile,
+              height: simpleLevel.player.size.x * tile,
               speed: 3,
               velX: 0,
               velY: 0,
@@ -296,54 +394,76 @@ function resumeDirective($sce, $compile){
           },
           keys = [],
           friction = 0.8,
-          gravity = 0.3;
+          gravity = 0.3,
+          score = 0;
 
       var boxes = [];
 
-      // dimensions
+      // Canvas walls
       boxes.push({
           x: 0,
           y: 0,
-          width: 10,
-          height: height
+          width: tile,
+          height: height,
+          color: 'black'
       });
       boxes.push({
           x: 0,
-          y: height - 2,
+          y: height-tile,
           width: width,
-          height: 50
+          height: tile,
+          color: 'black'
       });
       boxes.push({
-          x: width - 10,
+          x: width-tile,
           y: 0,
-          width: 50,
-          height: height
-      });
-
-      boxes.push({
-          x: 120,
-          y: 10,
-          width: 80,
-          height: 80
+          width: tile,
+          height: height,
+          color: 'black'
       });
       boxes.push({
-          x: 170,
-          y: 50,
-          width: 80,
-          height: 80
+          x: 0,
+          y: 0,
+          width: width,
+          height: tile,
+          color: 'black'
       });
-      boxes.push({
-          x: 220,
-          y: 100,
-          width: 80,
-          height: 80
+      
+      for(var ii=0; ii<simpleLevel.grid.length; ii++){
+        var line = simpleLevel.grid[ii];
+        for(var i=0; i < line.length; i++){
+          var tileEl = line[i];
+          var obj = {
+            x: tile * i,
+            y: tile * ii,
+            width: tile,
+            height: tile,
+            color: 'white'
+          };
+          if(tileEl === 'wall'){
+            obj.color = 'blue';
+            boxes.push(obj);
+          }
+          else if (tileEl === 'lava'){
+            obj.color = 'red';
+            boxes.push(obj);
+          }
+        }
+      };
+      
+      angular.forEach(simpleLevel.actors, function(actor){
+        if(actor.__proto__.type === 'coin'){
+          boxes.push({
+            x: actor.pos.x * tile,
+            y: actor.pos.y * tile,
+            width: actor.size.x * tile,
+            height: actor.size.y * tile,
+            color: 'yellow',
+            cleared: false
+          })
+        }
       });
-      boxes.push({
-          x: 270,
-          y: 150,
-          width: 40,
-          height: 40
-      });
+      
 
       canvas.width = width;
       canvas.height = height;
@@ -351,8 +471,8 @@ function resumeDirective($sce, $compile){
       function update() {
           // check keys
           if (keys[38] || keys[32]) {
-              // up arrow or space
-              if (!player.jumping && player.grounded) {
+              // up arrow or space  
+            if (!player.jumping && player.grounded) {
                   player.jumping = true;
                   player.grounded = false;
                   player.velY = -player.speed * 2;
@@ -370,26 +490,50 @@ function resumeDirective($sce, $compile){
           player.velX *= friction;
           player.velY += gravity;
 
+          // Reset the canvas
           ctx.clearRect(0, 0, width, height);
-          ctx.fillStyle = "black";
           ctx.beginPath();
-
           player.grounded = false;
+        
+          // Draw all the canvas elements
           for (var i = 0; i < boxes.length; i++) {
-              ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
-
-              var dir = colCheck(player, boxes[i]);
-
-              if (dir === "l" || dir === "r") {
-                  player.velX = 0;
-                  player.jumping = false;
-              } else if (dir === "b") {
-                  player.grounded = true;
-                  player.jumping = false;
-              } else if (dir === "t") {
-                  player.velY *= -1;
+              if(!boxes[i].cleared){
+                ctx.fillStyle = boxes[i].color;
+                ctx.rect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
+                ctx.fill();
+                ctx.beginPath();
+                // Check for collisions
+                var dir = colCheck(player, boxes[i]);
               }
-
+            
+             // Check if the collided element is hard or not
+             if(boxes[i].color !== 'yellow' && dir !== null){
+               // Check collision direction
+               if(boxes[i].color === 'red'){
+                 console.log('Ouch!');
+               }
+               if (dir === "l" || dir === "r") {
+                    player.velX = 0;
+                    player.jumping = false;
+                } else if (dir === "b") {
+                    player.grounded = true;
+                    player.jumping = false;
+                } else if (dir === "t") {
+                    player.velY *= -1;
+                }
+            } else if(boxes[i].color === 'yellow' && dir !== null) {
+              // Clear the collided element if soft
+              score++;
+              if(score < 2)
+                console.log('score:', score);
+              else
+                console.log('You win!');
+              boxes[i].cleared = true;
+              ctx.fillStyle = 'white';
+              ctx.clearRect(boxes[i].x, boxes[i].y, boxes[i].width, boxes[i].height);
+              ctx.fill();
+              ctx.beginPath();
+            }
           }
 
           if(player.grounded){
@@ -400,7 +544,7 @@ function resumeDirective($sce, $compile){
           player.y += player.velY;
 
           ctx.fill();
-          ctx.fillStyle = "red";
+          ctx.fillStyle = "black";
           ctx.fillRect(player.x, player.y, player.width, player.height);
 
           requestAnimationFrame(update);
@@ -411,25 +555,29 @@ function resumeDirective($sce, $compile){
               vY = (shapeA.y + (shapeA.height / 2)) - (shapeB.y + (shapeB.height / 2)),
               hWidths = (shapeA.width / 2) + (shapeB.width / 2),
               hHeights = (shapeA.height / 2) + (shapeB.height / 2),
-              colDir = null;
+              colDir = null,
+              oX,
+              oY;
+        
           if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
-            var oX = hWidths - Math.abs(vX),             oY = hHeights - Math.abs(vY);         if (oX >= oY) {
-                  if (vY > 0) {
-                      colDir = "t";
-                      shapeA.y += oY;
-                  } else {
-                      colDir = "b";
-                      shapeA.y -= oY;
-                  }
+            oX = hWidths - Math.abs(vX);
+            oY = hHeights - Math.abs(vY);                 if (oX >= oY) {
+              if (vY > 0) {
+                  colDir = "t";
+                  shapeA.y += oY;
               } else {
-                  if (vX > 0) {
-                      colDir = "l";
-                      shapeA.x += oX;
-                  } else {
-                      colDir = "r";
-                      shapeA.x -= oX;
-                  }
+                  colDir = "b";
+                  shapeA.y -= oY;
               }
+            } else {
+              if (vX > 0) {
+                  colDir = "l";
+                  shapeA.x += oX;
+              } else {
+                  colDir = "r";
+                  shapeA.x -= oX;
+              }
+            }
           }
           return colDir;
       }

@@ -2,6 +2,8 @@
     "jscodehints.detectedExclusions": [
         "/home/dr27/projects/drventisette.github.io/bower_components/modernizr/feature-detects/exif-orientation.js",
         "/home/dr27/projects/drventisette.github.io/bower_components/modernizr/feature-detects/css-vwunit.js",
-        "/home/dr27/projects/drventisette.github.io/bower_components/modernizr/feature-detects/forms-formattribute.js"
+        "/home/dr27/projects/drventisette.github.io/bower_components/modernizr/feature-detects/forms-formattribute.js",
+        "/home/dr27/projects/drventisette.github.io/bower_components/modernizr/feature-detects/elem-details.js",
+        "/home/dr27/projects/drventisette.github.io/bower_components/modernizr/feature-detects/css-displaytable.js"
     ]
 }
