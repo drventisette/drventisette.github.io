@@ -537,11 +537,13 @@ function resumeDirective($sce, $compile, preloader){
                 var yStart = Math.floor(pos.y) + game.position.y;
                 var yEnd = Math.ceil(pos.y + size.y)  + game.position.y;
 
-                if (xStart < 0 || xEnd > fullMap.width || yStart > fullMap.height)
-                    return "edge";        
+                if(xStart < 0 || xEnd > fullMap.width || yStart > fullMap.height){
+                    return "edge";
+                }
 
-                if (yStart < 0 || yEnd > fullMap.height)
+                if(yStart < 0 || yEnd > fullMap.height){
                     return null;
+                }
 
                 for (var y = yStart; y < yEnd; y++) {
                     for (var x = xStart; x < xEnd; x++) {
@@ -561,8 +563,8 @@ function resumeDirective($sce, $compile, preloader){
                               rectA = {
                               left:   pos.x + game.position.x + 0.08,
                               top:    pos.y + game.position.y,
-                              right:  pos.x + + game.position.x + size.x - 0.18,
-                              bottom: pos.y + + game.position.y + size.y
+                              right:  pos.x + game.position.x + size.x - 0.18,
+                              bottom: pos.y + game.position.y + size.y
                             };
                           }
                             var rectB = {
@@ -573,17 +575,8 @@ function resumeDirective($sce, $compile, preloader){
                             };
 
                           var fineCheck = intersectRect(rectA, rectB);
-
                           if(fineCheck){
                             if(tile.entity.substance === "hard"){
-                                if(tile.entity.constructor.type === "lift"){
-                                    if(this.position.y + this.size.y <= tile.entity.position.y){
-                                        console.log("I need a lift");
-                                    }
-                                    else {
-                                        return null;
-                                    }
-                                }
                                 return tile.entity;
                             }
                             else {
@@ -614,7 +607,7 @@ function resumeDirective($sce, $compile, preloader){
                     // if the player is outside the margin reset it's position
                     if(obstacle === "edge"){
                         this.position = this.checkpoint;
-                        console.log("You lose", this.position);
+                        console.log("You lose");
                     }
                     // if there is an obstacle stop
                     newPosition = initialPos;
@@ -654,10 +647,11 @@ function resumeDirective($sce, $compile, preloader){
                 if(obstacle){
                     // if the player is outside the margin reset it's position
                     if(obstacle === "edge"){
+                        console.log("You lose");
                         this.position = this.checkpoint;
                     }
                     // handle collisions
-                        newPosition = initialPos;
+                    newPosition = initialPos;
 
                     // make the player jump
                     if(keys.up && this.speed.y > 0){
@@ -669,13 +663,6 @@ function resumeDirective($sce, $compile, preloader){
                         this.isJumping = false;
                         this.isGrounded = true;
                         this.speed.y = 0;
-                    }
-                    if(obstacle.constructor.type ==="lift"){
-                        console.log("Lift me up!");
-                        this.isGrounded = true;
-                        this.isJumping = false;
-                        this.speed.y = obstacle.speed.y;
-                        newPosition = new Vector(this.position.x, obstacle.position.y - this.size.y);
                     }
                 }
                 else {
@@ -741,18 +728,6 @@ function resumeDirective($sce, $compile, preloader){
             };
             Wall.prototype.process = function(step, game, keys){
                 return;
-            };
-
-            // Lift Object definition
-            var Lift = function(config){
-                Lift.parent.constructor.apply(this, arguments);
-                this.speed = new Vector(0,1);
-                this.substance = "hard";
-                this.imgs = ["/img/bricks.svg"];
-            };
-            extend(Lift, Wall, "lift");
-            Lift.prototype.process = function(step, game, keys){
-                slide(this, step, game, this.speed);
             };
             
             // Bird Object definition
@@ -941,8 +916,7 @@ function resumeDirective($sce, $compile, preloader){
                 var chars = {                
                         "#": Wall,
                         "*": Coin,
-                        "v": Bird,
-                        "-": Lift
+                        "v": Bird
                     };
 
                 for(var y=0; y < this.height; y++){
@@ -995,8 +969,11 @@ function resumeDirective($sce, $compile, preloader){
                 this.fullMap = new Map(level.map);
                 this.status = this.finishDelay = null;
                 this.background = level.background;
+                this.chapters = level.chapters;
+                this.chapter = 0;
             };    
-            Level.prototype.process = function(step, keys){
+            Level.prototype.process = function(position){
+                /*
                 if(this.status != null){
                     this.finishDelay -= step;
                 }
@@ -1007,6 +984,42 @@ function resumeDirective($sce, $compile, preloader){
                     }, this);
                     step -= thisStep;
                 }
+                */
+                // Update current chapter
+                var currentChapter = this.getChapter(position);
+                if(currentChapter && currentChapter !== this.chapter){
+                    this.chapter = currentChapter;
+                    c = this.chapters[currentChapter];
+                    scope.$apply(function(){
+                        scope.page.page.date = c.name;
+                        scope.page.page.mediaText = c.name;
+                        scope.page.page.coverText = c.name;
+                    });
+                    console.log(scope);
+                }
+                else if(currentChapter === undefined)
+                {
+                    this.chapter = undefined;
+                    scope.$apply(function(){
+                        scope.page.page.date = "";
+                        scope.page.page.mediaText = undefined;
+                        scope.page.page.coverText = undefined;
+                    });
+                }                
+            };
+            Level.prototype.getChapter = function(position){
+                var chap = undefined;
+                for(var i=0; i<this.chapters.length; i++){
+                    var test = this.chapters[i];
+                    if(position.x > test.aX &&
+                       position.x < test.bX &&
+                       position.y > test.aY &&
+                       position.y < test.bY)
+                    {
+                        chap = i;
+                    }
+                }
+                return chap;
             };
             
             // PUBLIC INTERFACE
@@ -1043,7 +1056,6 @@ function resumeDirective($sce, $compile, preloader){
                     this.height = level.gameHeight;
                     canvas.height = this.height * this.tileSize;
                     this.width = Math.ceil(canvas.parentElement.parentElement.parentElement.parentElement.clientWidth / this.tileSize);
-                    console.log(Math.ceil(canvas.parentElement.parentElement.parentElement.parentElement.clientWidth / this.tileSize));
                     //this.width = level.gameWidth;
                     canvas.width = this.width * this.tileSize;
 
@@ -1124,6 +1136,7 @@ function resumeDirective($sce, $compile, preloader){
                             }
 
                             step -= thisStep;
+                            self.level.process(self.level.player.position)
                             //var tracker = document.getElementById("tracker").getElementsByTagName("p")[0];
                             //var tracker = $("#tracker p");
                             //tracker.innerHTML = Math.floor(self.level.player.position.x);
@@ -1317,6 +1330,10 @@ function resumeDirective($sce, $compile, preloader){
                 "#            ##########                         -                                                          ###",
                 "#           ###########                               ###                                                    #",
                 "##############################################################################################################"
+            //  |01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789|
+            //  |0        10        20        30        40        50        60        70        80        90       100         |
+            //  |--------INTRO---------||------------EDU--------------||------WORK----||------OTHER-----||------DEV-----|
+            //  |--------1/22----------||------------22/53------------||------53/70---||------70/88-----||----88/103----|
             ],
             background: [
                 "/img/platformerBG.png",
@@ -1325,8 +1342,8 @@ function resumeDirective($sce, $compile, preloader){
             ],
             player: {
                 position: {
-                    x: 1,
-                    y: 5
+                    x: 2,
+                    y: 7
                 },
                 size: {
                     x: 0.8,
@@ -1342,6 +1359,39 @@ function resumeDirective($sce, $compile, preloader){
                 "/img/platformerFG.png",
                 "/img/bird.png",
                 "/img/noise.png"
+            ],
+            chapters: [
+                {
+                    name: "intro",
+                    aX: 0,
+                    aY: 0,
+                    bX: 23,
+                    bY: 14
+                },{
+                    name: "#education",
+                    aX: 23,
+                    aY: 0,
+                    bX: 53,
+                    bY: 14
+                },{
+                    name: "#workExperience",
+                    aX: 54,
+                    aY: 0,
+                    bX: 70,
+                    bY: 14
+                },{
+                    name: "#developmentSkills",
+                    aX: 88,
+                    aY: 3,
+                    bX: 109,
+                    bY: 14
+                },{
+                    name: "#otherSkills",
+                    aX: 70,
+                    aY: 0,
+                    bX: 88,
+                    bY: 10
+                }
             ]
         };
         
@@ -1394,7 +1444,7 @@ function resumeDirective($sce, $compile, preloader){
     
     return {
         restrict: 'AE',
-        template: '<canvas id="resume" style="position:absolute;bottom:0;left:0;" ng-show="initialized"></canvas>',
+        template: '<canvas id="resume" class="hide-for-small-only"  style="position:absolute;bottom:0;left:0;" ng-show="initialized"></canvas>',
         link: link
     };
 }
