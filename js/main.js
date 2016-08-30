@@ -268,7 +268,7 @@ function compile($compile, $sce){
   };
 }
    
-function resumeDirective($sce, $compile, preloader){
+function resumeDirective($sce, $compile, preloader, resumeContent){
     
     function link(scope, elem, attrs){        
         
@@ -989,11 +989,13 @@ function resumeDirective($sce, $compile, preloader){
                 var currentChapter = this.getChapter(position);
                 if(currentChapter && currentChapter !== this.chapter){
                     this.chapter = currentChapter;
-                    c = this.chapters[currentChapter];
+                    var c = this.chapters[currentChapter];
+                    var ch = resumeContent.getChapter(c.name);
+                    console.log(ch);
                     scope.$apply(function(){
-                        scope.page.page.date = c.name;
-                        scope.page.page.mediaText = c.name;
-                        scope.page.page.coverText = c.name;
+                        scope.page.page.date = ch.title;
+                        scope.page.page.mediaText = ch.title;
+                        scope.page.page.coverText = ch.title;
                     });
                     console.log(scope);
                 }
@@ -1368,25 +1370,25 @@ function resumeDirective($sce, $compile, preloader){
                     bX: 23,
                     bY: 14
                 },{
-                    name: "#education",
+                    name: "education",
                     aX: 23,
                     aY: 0,
                     bX: 53,
                     bY: 14
                 },{
-                    name: "#workExperience",
+                    name: "work",
                     aX: 54,
                     aY: 0,
                     bX: 70,
                     bY: 14
                 },{
-                    name: "#developmentSkills",
+                    name: "webSkills",
                     aX: 88,
                     aY: 3,
                     bX: 109,
                     bY: 14
                 },{
-                    name: "#otherSkills",
+                    name: "otherSkills",
                     aX: 70,
                     aY: 0,
                     bX: 88,
@@ -1448,6 +1450,154 @@ function resumeDirective($sce, $compile, preloader){
         link: link
     };
 }
+   
+function resumeContent(){
+    return {
+        "timestamp": "2016-08-30",
+        "chapters": [
+            {
+                "name": "education",
+                "type": "timeline",
+                "title": "formation",
+                "list": [
+                    {
+                        "date": "2003",
+                        "place": "Lycée Galileo Galilei de Cirié, Turin",
+                        "description": "baccalauréat scientifique",
+                        "longdescription": ""
+                    },
+                    {
+                        "date": "2007",
+                        "place": "Université de Turin",
+                        "description": "licence en Disciplines de l'Art, de la Musique et du Spectacle, option cinéma",
+                        "longdescription": ""
+                    },
+                    {
+                        "date": "2008",
+                        "place": "Université de Udine, Gorizia",
+                        "description": "Master en écritures pour le cinéma : scénario et critique",
+                        "longdescription": ""
+                    }
+                ]
+            },
+            {
+                "name": "work",
+                "type": "timeline",
+                "title": "expériences professionnelles",
+                "list": [
+                    {
+                        "date": "2010 - aujourd'hui",
+                        "place": "Le Géant des Beaux-Arts, Paris",
+                        "description": "conseiller de vente",
+                        "longdescription": ""
+                    },
+                    {
+                        "date": "2008-2010",
+                        "place": "Affabula Readings, Turin",
+                        "description": "story editor",
+                        "longdescription": ""
+                    },
+                    {
+                        "date": "2006",
+                        "place": "Laboratorio permanente di ricerca sull'arte dell'attore, Turin",
+                        "description": "assistant à la production théâtrale",
+                        "longdescription": ""
+                    },
+                    {
+                        "date": "2005",
+                        "place": "Piemonte Groove/Festival Club2Club, Turin",
+                        "description": "réalisateur/monteur vidéo",
+                        "longdescription": ""
+                    }
+                ]
+            },
+            {
+                "name": "webSkills",
+                "type": "skills",
+                "title": "compétences informatiques",
+                "list": [
+                    {
+                        "skill": "html",
+                        "level": 8
+                    },
+                    {
+                        "skill": "css",
+                        "level": 8
+                    },
+                    {
+                        "skill": "javascript",
+                        "level": 8
+                    },
+                    {
+                        "skill": "angularJs",
+                        "level": 6
+                    },
+                    {
+                        "skill": "php / Symfony",
+                        "level": 4
+                    },
+                    {
+                        "skill": "ruby / Ruby on Rails",
+                        "level": 4
+                    },
+                    {
+                        "skill": "apache Cordova / Ionic",
+                        "level": 6
+                    },
+                    {
+                        "skill": "java",
+                        "level": 2
+                    }
+                ],
+                "etc": [
+                    "logiciels de montage vidéo (Adobe Premiere)",
+                    "logiciels de traitement d'images (Gimp, Inkscape, Photoshop)",
+                    "logiciels bureautiques"
+                ]
+            },
+            {
+                "name": "otherSkills",
+                "type": "skills",
+                "title": "compétences linguistiques & intérêts personnels",
+                "list": [
+                    {
+                        "skill": "italien",
+                        "level": 10
+                    },
+                    {
+                        "skill": "français",
+                        "level": 9
+                    },
+                    {
+                        "skill": "anglais",
+                        "level": 9
+                    },
+                    {
+                        "skill": "espagnol",
+                        "level": 4
+                    }
+                ],
+                "etc": [
+                    "écriture littéraire et cinématographique",
+                    "dessin",
+                    "graphisme print & web",
+                    "photographie argéntique",
+                    "musique"
+                ]
+            },
+        ],
+        "getChapter" : function(chapterName){
+            var test;
+            for(var i=0; i < this.chapters.length; i++){
+                test = this.chapters[i];
+                if(test.name === chapterName){
+                    return test;
+                }
+            }
+            return false;
+        }
+    }
+};  
    
 // Configuration
 
@@ -1673,6 +1823,8 @@ var app = angular
 .controller('SandwichCtrl', SandwichCtrl)
 
 .service('SiteService', SiteService)
+
+.factory('resumeContent', resumeContent)
 
 .directive('resume', resumeDirective)
 .directive('compile', compile)
