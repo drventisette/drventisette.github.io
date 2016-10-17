@@ -9,8 +9,42 @@
     </div>
     <img ng-src="[[ mtc.page.media ]]" class="hide-for-small animated-img" ng-animate-swap="mtc.page.media" />
   </div>
-  <div ng-if="mtc.page.mediaText != undefined">
-      <h3>[[mtc.page.mediaText]]</h3>
+  <div ng-if="mtc.page.mediaText != undefined" class="row resume">
+        <ul ng-if="mtc.page.ch.type == 'timeline'" class="accordion expanded typewriter">
+            <li class="accordion-navigation">
+                <a class="head">
+                    [[mtc.page.ch.title]]
+                </a>
+            </li>
+            <li class="accordion-navigation" ng-repeat="item in mtc.page.ch.list">
+                <a>
+                    [[item.date]]
+                </a>
+                <div class="content active">
+                    <h5>[[item.description]]</h5>
+                    <h6>
+                        <span class="label secondary">
+                         [[item.place]]
+                        </span>
+                    </h6>
+                </div>
+            </li>
+        </ul>
+      <ul ng-if="mtc.page.ch.type == 'skills'" class="accordion expanded typewriter">
+            <li class="accordion-navigation">
+                <a class="head">
+                    [[mtc.page.ch.title]]
+                </a>
+            </li>
+            <li class="accordion-navigation" ng-repeat="item in mtc.page.ch.list">
+                <div class="content active pbn ptn">
+                    <h5>
+                    <i class="fa fa-terminal"></i>[[item.skill]] 
+                    <progress value="[[item.level]]" max="10"></progress>
+                    </h5>
+                </div>
+            </li>
+        </ul>
   </div>
 </div>
   

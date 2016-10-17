@@ -1,5 +1,11 @@
 /* GENERAL STYLES */
 
+.typewriter {
+    p, a, span, h1, h2, h3, h4, h5, h6 { 
+        font-family: Consolas, monaco, monospace !important;
+    }
+}
+
 .row {
   max-width: none;
 }
@@ -329,4 +335,48 @@ body,
     background-color: #444;
     color: ivory;
   }
+}
+
+// RESUME
+
+.resume {
+    ul.accordion {
+        li.accordion-navigation {
+            a {
+                padding: 1rem;
+                line-height: 2rem;
+                background-color: $primary-color;
+                color: #fff;
+                text-align: right;
+            }
+            
+            .head {
+                font-size: 1.5rem;
+                line-height: 2,4rem;
+                color: #999;
+                background-color: #fff;
+            }
+            
+            .content {
+                h6 {
+                    text-align: right;
+                    font-size: 1,1rem;
+                    
+                    .label {
+                        text-align: right;
+                        white-space: normal;
+                    }
+                }
+                
+                progress {
+                    width: 100%;
+                }
+            }
+        }
+    }
+}
+
+
+.resume.cover-d {
+    box-shadow: inset 3px 4px 15px #999;
 }

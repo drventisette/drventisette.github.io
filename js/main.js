@@ -140,13 +140,18 @@ function PostCtrl(getPost, $scope){
   mtc.post = true;
 }
 
-function PageCtrl(getPage, $scope){
+function PageCtrl(getPage, $scope, $location){
   var ctrl = this,
       mtc = $scope.mtc;
   
   ctrl.page = getPage;
   mtc.page = ctrl.page;
   mtc.post = false;
+  
+  if(ctrl.page.id === "resume"){
+    // refresh the page
+    $location.path('/resume/');
+  }
 }
 
 // Services
@@ -268,7 +273,7 @@ function compile($compile, $sce){
   };
 }
    
-function resumeDirective($sce, $compile, preloader, resumeContent){
+function resumeDirective($sce, $compile, preloader, resumeContent, $window){
     
     function link(scope, elem, attrs){        
         
@@ -993,9 +998,9 @@ function resumeDirective($sce, $compile, preloader, resumeContent){
                     var ch = resumeContent.getChapter(c.name);
                     console.log(ch);
                     scope.$apply(function(){
-                        scope.page.page.date = ch.title;
+                        scope.page.page.ch = ch;
                         scope.page.page.mediaText = ch.title;
-                        scope.page.page.coverText = ch.title;
+                        scope.page.page.coverText = ch.subtitle;
                     });
                     console.log(scope);
                 }
@@ -1385,7 +1390,7 @@ function resumeDirective($sce, $compile, preloader, resumeContent){
                     name: "webSkills",
                     aX: 88,
                     aY: 3,
-                    bX: 109,
+                    bX: 102,
                     bY: 14
                 },{
                     name: "otherSkills",
@@ -1458,32 +1463,40 @@ function resumeContent(){
             {
                 "name": "education",
                 "type": "timeline",
-                "title": "formation",
+                "title": "mon parcours de formation",
+                "subtitle": "autres formations",
                 "list": [
+                    
                     {
-                        "date": "2003",
-                        "place": "Lycée Galileo Galilei de Cirié, Turin",
-                        "description": "baccalauréat scientifique",
+                        "date": "2008",
+                        "place": "Université de Udine",
+                        "description": "master en écritures pour le cinéma | scénario & critique",
                         "longdescription": ""
                     },
                     {
                         "date": "2007",
                         "place": "Université de Turin",
-                        "description": "licence en Disciplines de l'Art, de la Musique et du Spectacle, option cinéma",
+                        "description": "licence en Disciplines de l'Art, de la Musique et du Spectacle | option cinéma",
                         "longdescription": ""
                     },
                     {
-                        "date": "2008",
-                        "place": "Université de Udine, Gorizia",
-                        "description": "Master en écritures pour le cinéma : scénario et critique",
+                        "date": "2003",
+                        "place": "Lycée Galileo Galilei de Cirié, Turin",
+                        "description": "baccalauréat scientifique",
                         "longdescription": ""
                     }
+                ],
+                "etc": [
+                    "Langua Française écrite - Aleph écriture - Paris",
+                    "diplôme SST - Sauveteur Sécouriste du Travail",
+                    "Permis de conduire de catégorie B"
                 ]
             },
             {
                 "name": "work",
                 "type": "timeline",
-                "title": "expériences professionnelles",
+                "title": "mes expériences professionnelles",
+                "subtitle": "",
                 "list": [
                     {
                         "date": "2010 - aujourd'hui",
@@ -1514,15 +1527,16 @@ function resumeContent(){
             {
                 "name": "webSkills",
                 "type": "skills",
-                "title": "compétences informatiques",
+                "title": "dévelopment web",
+                "subtitle": "compétences informatiques",
                 "list": [
                     {
                         "skill": "html",
-                        "level": 8
+                        "level": 9
                     },
                     {
                         "skill": "css",
-                        "level": 8
+                        "level": 9
                     },
                     {
                         "skill": "javascript",
@@ -1533,15 +1547,15 @@ function resumeContent(){
                         "level": 6
                     },
                     {
-                        "skill": "php / Symfony",
+                        "skill": "php/Symfony",
                         "level": 4
                     },
                     {
-                        "skill": "ruby / Ruby on Rails",
-                        "level": 4
+                        "skill": "ruby/Ruby on Rails",
+                        "level": 5
                     },
                     {
-                        "skill": "apache Cordova / Ionic",
+                        "skill": "apache Cordova/Ionic",
                         "level": 6
                     },
                     {
@@ -1550,15 +1564,17 @@ function resumeContent(){
                     }
                 ],
                 "etc": [
-                    "logiciels de montage vidéo (Adobe Premiere)",
-                    "logiciels de traitement d'images (Gimp, Inkscape, Photoshop)",
-                    "logiciels bureautiques"
+                    "gestion de version (Git)",
+                    "montage vidéo (Adobe Premiere)",
+                    "traitement d'images (Gimp, Inkscape, Photoshop)",
+                    "bureautique (MS Office, Open Office)"
                 ]
             },
             {
                 "name": "otherSkills",
                 "type": "skills",
-                "title": "compétences linguistiques & intérêts personnels",
+                "title": "compétences linguistiques",
+                "subtitle": "intérêts personnels",
                 "list": [
                     {
                         "skill": "italien",
@@ -1675,7 +1691,14 @@ var app = angular
   $interpolateProvider.endSymbol(']]');
 })
 .config(['$stateProvider', '$urlRouterProvider', stateRouter])
-.run(function($rootScope){
+.run(function($rootScope, $state){
+    /*  
+    $rootScope.$on('$stateChangeStart', function(e, toState, toParams, fromState, fromParams){
+      if(toState.name === "resume" && fromState.name !== "resume"){          
+          location.reload();
+      }
+    });
+    */
   $rootScope.$on('$viewContentLoaded', function () {
     $(document).foundation({
       offcanvas : {
