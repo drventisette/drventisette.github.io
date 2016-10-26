@@ -1,12 +1,16 @@
 <!-- Cover-d section -->
+
 <div ng-if="mtc.page.coverText == undefined" class="cover-d small-12 medium-7 third-height columns">
   <img class="animated-img" ng-src="[[mtc.page.cover]]" ng-animate-swap="mtc.page.cover" />
 </div>
+
 <div ng-if="mtc.page.coverText != undefined" class="cover-d small-12 medium-7 third-height columns typewriter pam resume">
-  <h4>[[mtc.page.coverText]]</h4>
-  <p>
-      <span ng-repeat="line in mtc.page.ch.etc">
-          [[line]]<br/>
-      </span>
-  </p>
+    <div class="cover-text">
+      <h4>[[mtc.page.coverText]]</h4>
+      <p>
+          <span ng-repeat="line in mtc.page.ch.etc">
+              [[line]]<br/>
+          </span>
+      </p>
+    </div>
 </div>

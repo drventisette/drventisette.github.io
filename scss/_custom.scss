@@ -380,3 +380,46 @@ body,
 .resume.cover-d {
     box-shadow: inset 3px 4px 15px #999;
 }
+
+
+// Resume animations
+
+.resume.cover-d.ng-enter {
+    transition-duration:  300m;
+    animation-duration: .3s;
+    animation-timing-function: ease-in-out;
+}
+
+.resume.cover-d.ng-leave {
+    transition-duration: 300ms;
+    animation-duration: .3s;
+    animation-timing-function: ease-in-out;
+}
+
+.resume.cover-d.ng-enter .cover-text {
+    transition-duration: inherit;
+    transition-property: all;
+    transition-timing-function: linear;
+    animation-duration: inherit;
+    animation-timing-function: inherit;
+    animation-name: slideInUp;
+    opacity: 0;
+}
+
+.resume.cover-d.ng-enter.ng-enter-active .cover-text {
+    opacity: 1;
+}
+
+.resume.cover-d.ng-leave .cover-text {
+    transition-duration: inherit;
+    transition-property: all;
+    transition-timing-function: linear;
+    animation-duration: inherit;
+    animation-timing-function: inherit;
+    animation-name: slideOutDown;
+    opacity: 1;
+}
+
+.resume.cover-d.ng-leave.ng-leave-active .cover-text {
+    opacity: 0;
+}
