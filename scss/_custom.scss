@@ -354,10 +354,11 @@ body,
                 font-size: 1.5rem;
                 line-height: 2,4rem;
                 color: #999;
-                background-color: #fff;
+                background-color: transparent;
             }
             
             .content {
+                background-color: transparent;
                 h6 {
                     text-align: right;
                     font-size: 1,1rem;
@@ -379,47 +380,78 @@ body,
 
 .resume.cover-d {
     box-shadow: inset 3px 4px 15px #999;
+    z-index: -999;
+    background-color: #fff;
 }
 
+.resume.media-d {
+    box-shadow: inset -3px -4px 15px #999;
+    z-index: -1000;
+    background-color: #fff;
+}
+
+.resume.cover-d .cover-text,
+.resume.media-d .media-text {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
 
 // Resume animations
 
-.resume.cover-d.ng-enter {
-    transition-duration:  300m;
-    animation-duration: .3s;
+.resume.media-d .media-text.ng-enter {
+    animation-duration: 300ms;
     animation-timing-function: ease-in-out;
+    transition: all 300ms ease-in-out;
+    opacity: 0;
 }
 
-.resume.cover-d.ng-leave {
-    transition-duration: 300ms;
-    animation-duration: .3s;
+.resume.cover-d .cover-text.ng-enter {
+    animation-duration: 300ms;
     animation-timing-function: ease-in-out;
+    transition: all 300ms ease-in-out;
+    opacity: 0;
 }
 
-.resume.cover-d.ng-enter .cover-text {
-    transition-duration: inherit;
-    transition-property: all;
-    transition-timing-function: linear;
-    animation-duration: inherit;
-    animation-timing-function: inherit;
+.resume.cover-d .cover-text.ng-leave {
+    animation-duration: 300ms;
+    animation-timing-function: ease-in-out;
+    transition: all 300ms ease-in-out;
+    opacity: 1;
+}
+
+.resume.media-d .media-text.ng-leave {
+    animation-duration: 300ms;
+    animation-timing-function: ease-in-out;
+    transition: all 300ms ease-in-out;
+    opacity: 1;
+}
+
+.resume.cover-d .cover-text.ng-enter.ng-enter-active {
+    opacity: 1;
+}
+
+.resume.media-d .media-text.ng-enter.ng-enter-active {
+    opacity: 1;
+}
+
+.resume.cover-d .cover-text.ng-leave.ng-leave-active {
+    opacity: 0;
+}
+
+.resume.media-d .media-text.ng-leave.ng-leave-active {
+    opacity: 0;
+}
+
+.resume.cover-d .cover-text.ng-enter {
     animation-name: slideInUp;
-    opacity: 0;
 }
-
-.resume.cover-d.ng-enter.ng-enter-active .cover-text {
-    opacity: 1;
+.resume.media-d .media-text.ng-enter {
+    animation-name: slideInLeft;
 }
-
-.resume.cover-d.ng-leave .cover-text {
-    transition-duration: inherit;
-    transition-property: all;
-    transition-timing-function: linear;
-    animation-duration: inherit;
-    animation-timing-function: inherit;
-    animation-name: slideOutDown;
-    opacity: 1;
+.resume.cover-d .cover-text.ng-leave {
+    animation-name: slideOutUp;
 }
-
-.resume.cover-d.ng-leave.ng-leave-active .cover-text {
-    opacity: 0;
+.resume.media-d .media-text.ng-leave {
+    animation-name: slideOutRight;
 }
