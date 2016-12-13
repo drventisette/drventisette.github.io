@@ -1384,7 +1384,7 @@ function resumeDirective($sce, $compile, preloader, resumeContent, $window){
                     name: "work",
                     aX: 54,
                     aY: 0,
-                    bX: 70,
+                    bX: 69,
                     bY: 14
                 },{
                     name: "webSkills",
@@ -1496,7 +1496,7 @@ function resumeContent(){
                 "name": "work",
                 "type": "timeline",
                 "title": "mes expériences professionnelles",
-                "subtitle": "",
+                "subtitle": "autres expériences",
                 "list": [
                     {
                         "date": "2010 - aujourd'hui",
@@ -1522,6 +1522,9 @@ function resumeContent(){
                         "description": "réalisateur/monteur vidéo",
                         "longdescription": ""
                     }
+                ],
+                "etc": [
+                    "Webmaster / assistant technique de l'association Nicarali"
                 ]
             },
             {
