@@ -2,4 +2,4 @@
 *.DS_Store
 _site
 Gemfile.lock
-node_modules
+node_modules/
