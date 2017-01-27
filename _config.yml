@@ -12,8 +12,7 @@ year : 2015
 timezone: Europe/Paris
 markdown : kramdown
 permalink: pretty
-exclude :
-  - node_modules
+exclude : [node_modules]
 
 defaults:
   -
