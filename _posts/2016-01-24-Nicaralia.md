@@ -1,7 +1,7 @@
 ---
 title: Nicaralia
 media: http://res.cloudinary.com/drventisette/image/upload/q_40/v1485503014/nicaralia_hqg4mc.gif
-cover: http://lorempixel.com/600/300
+cover: http://res.cloudinary.com/drventisette/image/upload/q_40/v1485503014/nicaralia_hqg4mc.gif
 tags: Website,Ruby,HTML,CSS,javaScript
 ---
 
