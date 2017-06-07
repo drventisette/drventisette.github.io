@@ -1305,6 +1305,7 @@ function resumeDirective($sce, $compile, preloader, resumeContent, $window){
                         if(!scope.initialized){
                             scope.$apply(function(){
                                 scope.initialized = true;
+                                console.log('initialized : ', scope.initialized);
                             });
                         }
                     });
