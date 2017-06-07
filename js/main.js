@@ -1301,6 +1301,7 @@ function resumeDirective($sce, $compile, preloader, resumeContent, $window){
                                           );
                     this.context.closePath();
                     
+                    
                     $(bg).load(function(){
                         if(!scope.initialized){
                             scope.$apply(function(){
@@ -1452,7 +1453,8 @@ function resumeDirective($sce, $compile, preloader, resumeContent, $window){
     
     return {
         restrict: 'AE',
-        template: '<canvas id="resume" class="hide-for-small-only"  style="position:absolute;bottom:0;left:0;" ng-show="initialized"></canvas>',
+        /* template: '<canvas id="resume" class="hide-for-small-only"  style="position:absolute;bottom:0;left:0;" ng-show="initialized"></canvas>', */
+        template: '<canvas id="resume" class="hide-for-small-only"  style="position:absolute;bottom:0;left:0;"></canvas>',
         link: link
     };
 }
